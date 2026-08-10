@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>panneau secret — virgule.</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#F4EDDD">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='17' cy='12' r='9' fill='%23BF4E24'/%3E%3Cpath d='M14 19 C 13 24, 10 28, 5 31 C 11 30, 17 26, 19 20 Z' fill='%23BF4E24'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Archivo:wght@400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --creme: #F4EDDD; --ivoire: #FBF6EA; --papier: #EDE3CC;
+      --noir: #1B1610; --encre: #4A4234;
+      --rouille: #BF4E24; --rouille-texte: #A03D17;
+      --sauge: #8A9B84; --teal: #39584C; --moutarde: #D9A62E;
+      --serif: "Fraunces", Georgia, serif;
+      --sans: "Archivo", system-ui, sans-serif;
+      --main: "Caveat", cursive;
+      --tordu: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--creme); color: var(--noir);
+      font-family: var(--sans); font-size: 0.95rem; line-height: 1.5;
+    }
+    a { color: inherit; }
+    .entete {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: 0.8rem clamp(1rem, 4vw, 3rem);
+      background: var(--creme); border-bottom: 1.5px solid var(--noir);
+    }
+    .titre { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 800; font-size: 1.3rem; }
+    .titre .point { color: var(--rouille); }
+    .sous-titre { font-family: var(--main); font-size: 1.1rem; color: var(--encre); }
+    .statut { margin-left: auto; font-family: var(--main); font-size: 1.1rem; color: var(--teal); min-width: 8rem; text-align: right; }
+    .voir-site {
+      font-size: 0.85rem; text-decoration: none; border: 1.5px solid var(--noir);
+      border-radius: var(--tordu); padding: 0.35rem 0.9rem; background: var(--ivoire);
+    }
+    .voir-site:hover { background: var(--moutarde); }
+    .onglets { display: flex; gap: 0.4rem; flex-wrap: wrap; padding: 1rem clamp(1rem, 4vw, 3rem) 0; }
+    .onglets button {
+      font: inherit; font-family: var(--serif); font-style: italic; font-size: 1.05rem;
+      background: none; border: 1.5px solid transparent; border-radius: var(--tordu);
+      padding: 0.4rem 1rem; cursor: pointer; color: var(--encre);
+    }
+    .onglets button[aria-selected="true"] { border-color: var(--noir); background: var(--ivoire); color: var(--noir); }
+    main { padding: 1.5rem clamp(1rem, 4vw, 3rem) 5rem; max-width: 68rem; }
+    section[hidden] { display: none; }
+    h2 { font-family: var(--serif); font-style: italic; font-weight: 700; font-size: 1.3rem; margin: 1.5rem 0 0.8rem; }
+    .aide { font-family: var(--main); font-size: 1.15rem; color: var(--encre); margin: 0.2rem 0 1.2rem; }
+    label { display: block; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--encre); margin-bottom: 0.15rem; }
+    input[type="text"], input[type="email"], input[type="url"], textarea, select {
+      font: inherit; width: 100%; background: var(--ivoire); color: var(--noir);
+      border: 1.5px solid var(--encre); border-radius: 4px; padding: 0.4rem 0.55rem;
+    }
+    textarea { resize: vertical; min-height: 2.4rem; }
+    input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px dashed var(--rouille); outline-offset: 2px; }
+    .champ { margin-bottom: 0.8rem; }
+    .rangee { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .btn {
+      font: inherit; cursor: pointer; background: var(--ivoire); color: var(--noir);
+      border: 1.5px solid var(--noir); border-radius: var(--tordu); padding: 0.45rem 1rem;
+    }
+    .btn:hover { background: var(--moutarde); }
+    .btn-danger { border-color: var(--rouille); color: var(--rouille-texte); }
+    .btn-danger:hover { background: var(--rouille); color: var(--ivoire); }
+    .btn-mini { padding: 0.2rem 0.6rem; font-size: 0.85rem; border-radius: 6px; }
+    .carte {
+      background: var(--ivoire); border: 1.5px solid var(--noir); border-radius: 6px;
+      padding: 1rem 1.1rem; margin-bottom: 1.2rem;
+      box-shadow: 3px 4px 0 rgba(27, 22, 16, 0.12);
+    }
+    .carte-tete { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+    .carte-num { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--encre); }
+    .carte-titre { font-family: var(--serif); font-style: italic; font-weight: 600; flex: 1; min-width: 8rem; }
+    .carte-actions { display: flex; gap: 0.35rem; }
+    .carte-corps { display: grid; grid-template-columns: 180px 1fr; gap: 1.1rem; align-items: start; }
+    @media (max-width: 640px) { .carte-corps { grid-template-columns: 1fr; } }
+    .carte-visuel { position: sticky; top: 4.2rem; text-align: center; }
+    .carte-visuel img {
+      width: 100%; max-height: 220px; object-fit: cover;
+      border: 1.5px solid var(--noir); background: var(--papier);
+      transform: rotate(-1.2deg);
+    }
+    .carte-visuel-note {
+      display: block; margin-top: 0.4rem;
+      font-family: var(--main); font-size: 1.05rem; color: var(--encre);
+      transform: rotate(-1.5deg);
+    }
+    .carte-visuel-vide {
+      display: grid; place-content: center; aspect-ratio: 4 / 3;
+      border: 1.5px dashed var(--encre); background: var(--papier);
+      font-family: var(--main); font-size: 1.05rem; color: var(--encre);
+    }
+    fieldset { border: 1.5px dashed var(--encre); border-radius: 6px; margin: 0 0 1.2rem; padding: 0.8rem 1rem 0.4rem; }
+    legend { font-family: var(--serif); font-style: italic; padding: 0 0.4rem; }
+    .curseurs { display: grid; gap: 0.5rem 1rem; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); align-items: center; }
+    .curseur { display: grid; grid-template-columns: 6.5rem 1fr 2.8rem; gap: 0.5rem; align-items: center; }
+    .curseur label { margin: 0; }
+    .curseur output { font-size: 0.8rem; text-align: right; }
+    input[type="range"] { width: 100%; accent-color: var(--rouille); }
+    .portrait-atelier { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start; }
+    @media (max-width: 760px) { .portrait-atelier { grid-template-columns: 1fr; } }
+    .apercu {
+      position: relative; width: 260px; border: 1.5px solid var(--noir); background: var(--papier);
+      aspect-ratio: 3 / 4; overflow: visible; margin-top: 2.5rem;
+    }
+    .apercu img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .apercu-vide {
+      position: absolute; inset: 0; display: grid; place-content: center; text-align: center;
+      font-family: var(--main); font-size: 1.15rem; color: var(--encre); padding: 1rem;
+    }
+    .calque { position: absolute; line-height: 0; pointer-events: none; transform: translate(-50%, -50%) rotate(var(--rot, 0deg)); }
+    .calque svg { width: 100%; height: auto; overflow: visible; }
+    .note-stockage { font-size: 0.8rem; color: var(--rouille-texte); }
+    /* la porte d'entrée */
+    body.verrouille .entete, body.verrouille .onglets, body.verrouille main { display: none; }
+    .porte {
+      position: fixed; inset: 0; z-index: 50;
+      display: grid; place-items: center; padding: 1.5rem;
+      background: var(--creme);
+    }
+    body:not(.verrouille) .porte { display: none; }
+    .porte-carte {
+      width: min(100%, 22rem);
+      background: var(--ivoire); border: 1.5px solid var(--noir); border-radius: 8px;
+      box-shadow: 4px 5px 0 rgba(27, 22, 16, 0.15);
+      padding: 1.6rem 1.8rem 1.4rem;
+      transform: rotate(-0.6deg);
+    }
+    .porte-carte h2 { margin: 0 0 0.2rem; font-size: 1.5rem; }
+    .porte-carte .aide { margin-bottom: 1.2rem; }
+    .porte-carte .btn { width: 100%; margin-top: 0.4rem; }
+    .porte-erreur {
+      min-height: 1.4rem; margin: 0.6rem 0 0;
+      font-family: var(--main); font-size: 1.1rem; color: var(--rouille-texte);
+      text-align: center;
+    }
+    .porte-carte.secoue { animation: secousse 0.35s ease; }
+    @keyframes secousse {
+      0%, 100% { transform: rotate(-0.6deg) translateX(0); }
+      25% { transform: rotate(-0.6deg) translateX(-7px); }
+      75% { transform: rotate(-0.6deg) translateX(7px); }
+    }
+    .ligne-code {
+      display: block; background: var(--papier); border: 1.5px dashed var(--encre);
+      border-radius: 4px; padding: 0.6rem 0.8rem; margin: 0.6rem 0;
+      font-family: ui-monospace, Consolas, monospace; font-size: 0.78rem;
+      word-break: break-all; user-select: all;
+    }
+    .publier-bloc { max-width: 44rem; }
+    .publier-bloc ol { padding-left: 1.2rem; }
+    .barre-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 1rem 0; }
+    hr { border: none; border-top: 1.5px solid var(--encre); margin: 2rem 0; opacity: 0.4; }
+  </style>
+</head>
+<body class="verrouille">
+  <div class="porte" id="porte">
+    <form class="porte-carte" id="porte-form">
+      <h2 class="titre">qui va là<span class="point"> ?</span></h2>
+      <p class="aide">cette page est réservée au moustachu.</p>
+      <div class="champ">
+        <label for="l-id">identifiant</label>
+        <input type="text" id="l-id" autocomplete="username" required autofocus>
+      </div>
+      <div class="champ">
+        <label for="l-mdp">mot de passe</label>
+        <input type="password" id="l-mdp" autocomplete="current-password" required>
+      </div>
+      <button class="btn" type="submit">entrer</button>
+      <p class="porte-erreur" id="porte-erreur" role="alert"></p>
+    </form>
+  </div>
+
+  <header class="entete">
+    <h1 class="titre">virgule<span class="point">.</span> — panneau secret</h1>
+    <span class="sous-titre">chut. personne ne connaît cette page.</span>
+    <span class="statut" id="statut" role="status"></span>
+    <a class="voir-site" href="../" target="_blank" rel="noopener">voir le site ↗</a>
+    <button class="voir-site" id="sortir" type="button">sortir 🚪</button>
+  </header>
+
+  <div class="onglets" role="tablist" aria-label="sections du panneau">
+    <button role="tab" aria-selected="true" data-onglet="photos">les photos</button>
+    <button role="tab" aria-selected="false" data-onglet="textes">les petites phrases</button>
+    <button role="tab" aria-selected="false" data-onglet="portrait">le portrait</button>
+    <button role="tab" aria-selected="false" data-onglet="publier">publier</button>
+  </div>
+
+  <main>
+    <section id="sec-photos" role="tabpanel">
+      <p class="aide">chaque carte est une photo de la galerie. tout ce que tu tapes est enregistré automatiquement (dans ce navigateur).</p>
+      <div id="liste-photos"></div>
+      <button class="btn" id="ajouter-photo">+ ajouter une photo</button>
+    </section>
+
+    <section id="sec-textes" role="tabpanel" hidden>
+      <p class="aide">ici, ce sont les phrases du site lui-même : accueil, bio, contact… les petites phrases de chaque photo, elles, se modifient dans l'onglet « les photos », directement sur la carte de la photo concernée. laisse un champ tel quel pour garder le texte d'origine. un retour à la ligne = un saut de ligne sur le site. une ligne entre (parenthèses) devient une nuance en couleur.</p>
+      <div id="liste-textes"></div>
+      <h2>contact</h2>
+      <div class="rangee">
+        <div class="champ"><label for="c-email">e-mail</label><input type="email" id="c-email"></div>
+        <div class="champ"><label for="c-insta-texte">texte instagram</label><input type="text" id="c-insta-texte"></div>
+        <div class="champ"><label for="c-insta-url">lien instagram</label><input type="url" id="c-insta-url"></div>
+      </div>
+    </section>
+
+    <section id="sec-portrait" role="tabpanel" hidden>
+      <p class="aide">ta photo, le chapeau, la fausse moustache, et la petite virgule sur l'épaule. glisse les curseurs, l'aperçu bouge en direct.</p>
+      <div class="portrait-atelier">
+        <div>
+          <div class="apercu" id="apercu">
+            <img id="apercu-img" alt="" hidden>
+            <div class="apercu-vide" id="apercu-vide">ta photo ici.<br>(portrait, format 3/4 idéalement)</div>
+          </div>
+        </div>
+        <div>
+          <div class="champ">
+            <label for="p-image">adresse de la photo (URL ou chemin, ex. photos/portrait.jpg)</label>
+            <input type="text" id="p-image" placeholder="photos/portrait.jpg">
+          </div>
+          <div class="champ">
+            <label for="p-fichier">… ou choisis un fichier (stocké dans ce navigateur, pense à mettre le vrai fichier dans le dossier photos/ pour publier)</label>
+            <input type="file" id="p-fichier" accept="image/*">
+          </div>
+          <div id="calques-controles"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-publier" role="tabpanel" hidden>
+      <div class="publier-bloc">
+        <p class="aide">tes réglages vivent dans ce navigateur. pour qu'ils soient visibles par tout le monde, il faut mettre à jour les fichiers du site :</p>
+        <ol>
+          <li>télécharge les deux fichiers ci-dessous ;</li>
+          <li>remplace <code>js/photos-data.js</code> et <code>js/site-config.js</code> dans le dossier du site ;</li>
+          <li>si tu as choisi des photos « fichier », copie les vrais fichiers dans un dossier <code>photos/</code> et indique leur chemin dans l'onglet photos.</li>
+        </ol>
+        <div class="barre-actions">
+          <button class="btn" id="export-photos">télécharger js/photos-data.js</button>
+          <button class="btn" id="export-config">télécharger js/site-config.js</button>
+        </div>
+        <p class="note-stockage" id="note-stockage"></p>
+        <hr>
+        <h2>identifiants du panneau</h2>
+        <p class="aide">pour changer l'identifiant ou le mot de passe : remplis les deux champs, puis remplace la ligne <code>ACCES</code> en haut du script de <code>admin/index.html</code> par celle générée ici. le mot de passe n'est jamais écrit en clair, seule son empreinte l'est.</p>
+        <div class="rangee">
+          <div class="champ"><label for="n-id">nouvel identifiant</label><input type="text" id="n-id" autocomplete="off"></div>
+          <div class="champ"><label for="n-mdp">nouveau mot de passe</label><input type="text" id="n-mdp" autocomplete="off"></div>
+        </div>
+        <div class="barre-actions">
+          <button class="btn" id="generer-acces" type="button">générer la ligne à coller</button>
+          <button class="btn" id="copier-acces" type="button" hidden>copier</button>
+        </div>
+        <code class="ligne-code" id="ligne-acces" hidden></code>
+        <hr>
+        <p class="aide">et si tu veux tout oublier :</p>
+        <button class="btn btn-danger" id="reinitialiser">tout remettre comme avant (efface les réglages de ce navigateur)</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/photos-data.js"></script>
+  <script src="../js/site-config.js"></script>
+  <script>
+  (() => {
+    "use strict";
+    const $ = (s, c = document) => c.querySelector(s);
+    const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+    const clone = (o) => JSON.parse(JSON.stringify(o));
+
+    /* ------------------------------------------------------------------
+       la porte — identifiant + empreinte SHA-256 de "identifiant|motdepasse".
+       Par défaut : identifiant « virgule », mot de passe « moustache2026 ».
+       Pour changer : onglet publier → « identifiants du panneau ».
+    ------------------------------------------------------------------ */
+    const ACCES = { id: "virgule", empreinte: "1a1f2d3bb6e9c2634e2173db67897f74f21e5eb5822b9f4e05bb7242131d6da8" };
+    const CLE_SESSION = "virgule-admin-ouvert";
+
+    async function empreinte(texte) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texte));
+      return [...new Uint8Array(buf)].map((o) => o.toString(16).padStart(2, "0")).join("");
+    }
+
+    const porte = document.getElementById("porte");
+    const porteForm = document.getElementById("porte-form");
+    const porteErreur = document.getElementById("porte-erreur");
+    const MOTS_DOUX = [
+      "non. la moustache dit non.",
+      "toujours pas. le chapeau non plus n'y croit pas.",
+      "on aura tout essayé. la porte reste une porte.",
+    ];
+    let essais = 0;
+
+    function ouvrePanneau() {
+      document.body.classList.remove("verrouille");
+    }
+    try {
+      if (sessionStorage.getItem(CLE_SESSION) === ACCES.empreinte) ouvrePanneau();
+    } catch (e) { /* stockage indisponible : la porte reste fermée */ }
+
+    porteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!crypto.subtle) {
+        porteErreur.textContent = "ce navigateur ne sait pas vérifier le mot de passe (il faut du https ou localhost).";
+        return;
+      }
+      const id = document.getElementById("l-id").value.trim();
+      const mdp = document.getElementById("l-mdp").value;
+      const h = await empreinte(`${id}|${mdp}`);
+      if (id === ACCES.id && h === ACCES.empreinte) {
+        try { sessionStorage.setItem(CLE_SESSION, ACCES.empreinte); } catch (e2) { /* tant pis */ }
+        ouvrePanneau();
+      } else {
+        essais += 1;
+        porteErreur.textContent = MOTS_DOUX[Math.min(essais, MOTS_DOUX.length) - 1];
+        const carte = porteForm;
+        carte.classList.remove("secoue");
+        void carte.offsetWidth;
+        carte.classList.add("secoue");
+        document.getElementById("l-mdp").value = "";
+        document.getElementById("l-mdp").focus();
+      }
+    });
+
+    document.getElementById("sortir").addEventListener("click", () => {
+      try { sessionStorage.removeItem(CLE_SESSION); } catch (e) { /* rien */ }
+      document.body.classList.add("verrouille");
+      document.getElementById("l-mdp").value = "";
+      porteErreur.textContent = "";
+      document.getElementById("l-id").focus();
+    });
+
+    /* générateur de nouveaux identifiants (onglet publier) */
+    document.getElementById("generer-acces").addEventListener("click", async () => {
+      const id = document.getElementById("n-id").value.trim();
+      const mdp = document.getElementById("n-mdp").value;
+      const ligne = document.getElementById("ligne-acces");
+      const copier = document.getElementById("copier-acces");
+      if (!id || !mdp) { ligne.hidden = false; copier.hidden = true; ligne.textContent = "il faut un identifiant ET un mot de passe."; return; }
+      const h = await empreinte(`${id}|${mdp}`);
+      ligne.textContent = `const ACCES = { id: ${JSON.stringify(id)}, empreinte: "${h}" };`;
+      ligne.hidden = false;
+      copier.hidden = false;
+    });
+    document.getElementById("copier-acces").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(document.getElementById("ligne-acces").textContent);
+        ditStatut("copié ✓");
+      } catch (e) { ditStatut("copie impossible"); }
+    });
+
+    const CLE_STOCKAGE = "virgule-config";
+    const CATEGORIES = ["paysages", "macro", "animaux", "portraits", "architecture", "détails", "lumière"];
+    const TAILLES = ["grande", "panorama", "haute", "moyenne", "petite"];
+
+    const LIBELLES_TEXTES = [
+      ["hero-phrase", "phrase d'accueil (sous le grand titre)"],
+      ["annot-moi", "annotation « lui, c'est moi »"],
+      ["annot-app", "annotation sous le personnage"],
+      ["note-marge-a", "note en marge (droite de la galerie)"],
+      ["note-marge-b", "note en marge (gauche de la galerie)"],
+      ["fiche-legende", "légende sous le portrait"],
+      ["etiquette-chapeau", "étiquette chapeau"],
+      ["etiquette-moustache", "étiquette moustache"],
+      ["etiquette-appareil", "étiquette appareil"],
+      ["etiquette-queue", "étiquette la virgule"],
+      ["bio-nom", "bio — le nom"],
+      ["bio-metier", "bio — le métier"],
+      ["bio-ligne-1", "bio — ligne 1"],
+      ["bio-ligne-2", "bio — ligne 2"],
+      ["bio-ligne-3", "bio — ligne 3"],
+      ["stat1-label", "stat 1 — intitulé"], ["stat1-valeur", "stat 1 — valeur"],
+      ["stat2-label", "stat 2 — intitulé"], ["stat2-valeur", "stat 2 — valeur"],
+      ["stat3-label", "stat 3 — intitulé"], ["stat3-valeur", "stat 3 — valeur"],
+      ["stat4-label", "stat 4 — intitulé"], ["stat4-valeur", "stat 4 — valeur"],
+      ["annot-toi", "annotation contact"],
+      ["contact-promesse", "promesse sous le contact"],
+      ["pied-note", "petite note du pied de page"],
+    ];
+
+    const PORTRAIT_DEFAUT = {
+      image: "",
+      chapeau:   { x: 50, y: 4,  w: 52, r: -8, visible: true },
+      moustache: { x: 50, y: 46, w: 26, r: -2, visible: true },
+      perso:     { x: 82, y: 84, w: 26, r: 6,  visible: true },
+    };
+    const NOMS_CALQUES = { chapeau: "le chapeau", moustache: "la moustache", perso: "la petite virgule" };
+
+    const chapeauSVG = `<svg viewBox="0 0 120 62"><g transform="rotate(-2 60 31)"><rect x="2" y="47" width="116" height="11" rx="5.5" fill="#1B1610"/><rect x="24" y="4" width="72" height="47" rx="7" fill="#1B1610"/><rect x="24" y="33" width="72" height="12" fill="#D9A62E"/></g></svg>`;
+    const moustacheSVG = `<svg viewBox="60 125 104 32"><path fill="#BF4E24" d="M112 133 C 96 127, 80 129, 68 141 C 63 147, 66 155, 74 152 C 88 147, 100 144, 112 139 Z"/><path fill="#BF4E24" d="M112 133 C 128 127, 144 129, 156 141 C 161 147, 158 155, 150 152 C 136 147, 124 144, 112 139 Z"/></svg>`;
+    const persoSVG = `<svg viewBox="0 0 220 300">
+      <path fill="#1B1610" d="M84 172 C 80 214, 60 252, 22 278 C 54 268, 92 240, 101 192 Z"/>
+      <circle cx="112" cy="120" r="72" fill="#1B1610"/>
+      <g transform="rotate(-9 112 54)"><rect x="56" y="46" width="112" height="11" rx="5.5" fill="#1B1610"/><rect x="76" y="4" width="72" height="46" rx="7" fill="#1B1610"/><rect x="76" y="32" width="72" height="12" fill="#D9A62E"/></g>
+      <ellipse cx="88" cy="106" rx="16" ry="18" fill="#FFFDF4"/><circle cx="90" cy="109" r="6" fill="#1B1610"/>
+      <ellipse cx="136" cy="101" rx="13" ry="15" fill="#FFFDF4"/><circle cx="137" cy="104" r="5.2" fill="#1B1610"/>
+      <circle cx="112" cy="127" r="7" fill="#D9A62E"/>
+      <path fill="#BF4E24" d="M112 133 C 96 127, 80 129, 68 141 C 63 147, 66 155, 74 152 C 88 147, 100 144, 112 139 Z"/>
+      <path fill="#BF4E24" d="M112 133 C 128 127, 144 129, 156 141 C 161 147, 158 155, 150 152 C 136 147, 124 144, 112 139 Z"/>
+    </svg>`;
+    const SVGS = { chapeau: chapeauSVG, moustache: moustacheSVG, perso: persoSVG };
+
+    /* ---------- état ---------- */
+    let defauts = { textes: {}, contact: { email: "", instaUrl: "", instaTexte: "" } };
+    const etat = {
+      photos: clone(PHOTOS),
+      textes: {},
+      contact: { email: "", instaUrl: "", instaTexte: "" },
+      portrait: clone(PORTRAIT_DEFAUT),
+    };
+
+    /* ---------- utilitaires ---------- */
+    const statut = $("#statut");
+    let statutTimer = null;
+    function ditStatut(msg) {
+      statut.textContent = msg;
+      clearTimeout(statutTimer);
+      statutTimer = setTimeout(() => { statut.textContent = ""; }, 2500);
+    }
+
+    function htmlVersTexte(html) {
+      const d = document.createElement("div");
+      d.innerHTML = String(html).replace(/<br\s*\/?>/gi, "\n");
+      return d.textContent.replace(/[ \t]+\n/g, "\n").trim();
+    }
+
+    const RATIOS = { grande: [140, 105], panorama: [160, 100], haute: [105, 140], moyenne: [120, 90], petite: [100, 100] };
+    /* le panneau vit dans /admin/ : les chemins du site (photos/…) doivent
+       être résolus depuis la racine */
+    function versAdmin(src) {
+      return /^(data:|https?:|\/)/.test(src) ? src : `../${src}`;
+    }
+    function vignette(p) {
+      if (p.picsum != null) return `https://picsum.photos/id/${p.picsum}/120/90`;
+      return p.image ? versAdmin(p.image.split("{w}").join("700")) : "";
+    }
+    function champImage(p) {
+      return p.picsum != null ? `picsum:${p.picsum}` : (p.image || "");
+    }
+    function poseImage(p, valeur) {
+      const m = /^picsum:\s*(\d+)$/.exec(valeur.trim());
+      if (m) { p.picsum = +m[1]; delete p.image; }
+      else { p.image = valeur.trim(); delete p.picsum; }
+    }
+
+    /* ---------- sauvegarde (diff contre les défauts) ---------- */
+    let sauvTimer = null;
+    function sauvegarde() {
+      clearTimeout(sauvTimer);
+      sauvTimer = setTimeout(() => {
+        const payload = {};
+        if (JSON.stringify(etat.photos) !== JSON.stringify(PHOTOS)) payload.photos = etat.photos;
+        const textesDiff = {};
+        for (const [cle] of LIBELLES_TEXTES) {
+          const v = (etat.textes[cle] || "").trim();
+          if (v && v !== (defauts.textes[cle] || "")) textesDiff[cle] = v;
+        }
+        if (Object.keys(textesDiff).length) payload.textes = textesDiff;
+        const contactDiff = {};
+        for (const k of ["email", "instaUrl", "instaTexte"]) {
+          const v = (etat.contact[k] || "").trim();
+          if (v && v !== defauts.contact[k]) contactDiff[k] = v;
+        }
+        if (Object.keys(contactDiff).length) payload.contact = contactDiff;
+        if (JSON.stringify(etat.portrait) !== JSON.stringify(PORTRAIT_DEFAUT)) payload.portrait = etat.portrait;
+
+        try {
+          if (Object.keys(payload).length) {
+            const brut = JSON.stringify(payload);
+            localStorage.setItem(CLE_STOCKAGE, brut);
+            noteStockage(brut.length);
+          } else {
+            localStorage.removeItem(CLE_STOCKAGE);
+          }
+          ditStatut("enregistré ✓");
+        } catch (e) {
+          ditStatut("stockage plein !");
+          alert("Impossible d'enregistrer : le stockage du navigateur est plein.\nÉvite les photos « fichier » trop lourdes, utilise plutôt des chemins vers le dossier photos/.");
+        }
+      }, 350);
+    }
+
+    function noteStockage(taille) {
+      const el = $("#note-stockage");
+      const mo = taille / 1024 / 1024;
+      el.textContent = mo > 3
+        ? `attention : tes réglages pèsent ${mo.toFixed(1)} Mo (limite du navigateur ≈ 5 Mo). remplace les photos « fichier » par des chemins vers le dossier photos/.`
+        : "";
+    }
+
+    /* ---------- onglets ---------- */
+    $$(".onglets button").forEach((b) => {
+      b.addEventListener("click", () => {
+        $$(".onglets button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+        $$("main > section").forEach((s) => { s.hidden = s.id !== `sec-${b.dataset.onglet}`; });
+      });
+    });
+
+    /* ---------- onglet photos ---------- */
+    const listePhotos = $("#liste-photos");
+
+    function cartePhoto(p, i) {
+      const carte = document.createElement("article");
+      carte.className = "carte";
+      carte.innerHTML = `
+        <div class="carte-tete">
+          <span class="carte-num">n°${String(i + 1).padStart(2, "0")}</span>
+          <span class="carte-titre">${p.titre ? p.titre.replace(/</g, "&lt;") : "(sans titre)"}</span>
+          <span class="carte-actions">
+            <button class="btn btn-mini" data-act="monter" title="monter">↑</button>
+            <button class="btn btn-mini" data-act="descendre" title="descendre">↓</button>
+            <button class="btn btn-mini btn-danger" data-act="supprimer" title="supprimer">✕</button>
+          </span>
+        </div>
+        <div class="carte-corps">
+        <div class="carte-visuel">
+          ${vignette(p)
+            ? `<img src="${vignette(p).replace(/"/g, "&quot;")}" alt="" loading="lazy"
+                 onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'carte-visuel-vide',textContent:'image introuvable'}))">`
+            : `<div class="carte-visuel-vide">pas encore d'image</div>`}
+          <span class="carte-visuel-note">← c'est cette photo-là</span>
+        </div>
+        <div class="carte-champs">
+        <div class="rangee">
+          <div class="champ" style="grid-column: 1 / -1;">
+            <label>image (chemin photos/… — {w} = taille auto — ou picsum:ID pour une démo)</label>
+            <input type="text" data-champ="image" value="${champImage(p).replace(/"/g, "&quot;")}">
+          </div>
+          <div class="champ"><label>fichier local</label><input type="file" data-champ="fichier" accept="image/*"></div>
+          <div class="champ"><label>titre</label><input type="text" data-champ="titre" value="${(p.titre || "").replace(/"/g, "&quot;")}"></div>
+          <div class="champ"><label>catégorie</label>
+            <select data-champ="categorie">${CATEGORIES.map((c) => `<option ${c === p.categorie ? "selected" : ""}>${c}</option>`).join("")}</select>
+          </div>
+          <div class="champ"><label>taille dans la grille</label>
+            <select data-champ="taille">${TAILLES.map((t) => `<option ${t === p.taille ? "selected" : ""}>${t}</option>`).join("")}</select>
+          </div>
+          <div class="champ"><label>lieu</label><input type="text" data-champ="lieu" value="${(p.lieu || "").replace(/"/g, "&quot;")}"></div>
+          <div class="champ"><label>date</label><input type="text" data-champ="date" value="${(p.date || "").replace(/"/g, "&quot;")}"></div>
+        </div>
+        <div class="rangee">
+          <div class="champ"><label>petite phrase (au survol)</label><textarea data-champ="phrase" rows="2">${(p.phrase || "").replace(/</g, "&lt;")}</textarea></div>
+          <div class="champ"><label>description (vue en grand)</label><textarea data-champ="description" rows="2">${(p.description || "").replace(/</g, "&lt;")}</textarea></div>
+          <div class="champ"><label>texte alternatif (accessibilité)</label><textarea data-champ="alt" rows="2">${(p.alt || "").replace(/</g, "&lt;")}</textarea></div>
+        </div>
+        </div>
+        </div>`;
+
+      /* remet la vignette à jour (nouvelle image tapée ou fichier chargé) */
+      function rafraichitVisuel() {
+        const visuel = $(".carte-visuel", carte);
+        const note = $(".carte-visuel-note", visuel);
+        const src = vignette(p);
+        [...visuel.children].forEach((el) => { if (el !== note) el.remove(); });
+        if (src) {
+          const im = document.createElement("img");
+          im.alt = "";
+          im.onerror = () => im.replaceWith(Object.assign(document.createElement("div"), { className: "carte-visuel-vide", textContent: "image introuvable" }));
+          im.src = src;
+          visuel.prepend(im);
+        } else {
+          visuel.prepend(Object.assign(document.createElement("div"), { className: "carte-visuel-vide", textContent: "pas encore d'image" }));
+        }
+      }
+
+      let visuelTimer = null;
+      carte.addEventListener("input", (e) => {
+        const champ = e.target.dataset.champ;
+        if (!champ || champ === "fichier") return;
+        if (champ === "image") {
+          poseImage(p, e.target.value);
+          clearTimeout(visuelTimer);
+          visuelTimer = setTimeout(rafraichitVisuel, 500);
+        } else p[champ] = e.target.value;
+        if (champ === "titre") $(".carte-titre", carte).textContent = e.target.value || "(sans titre)";
+        sauvegarde();
+      });
+      $('[data-champ="fichier"]', carte).addEventListener("change", (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const lecteur = new FileReader();
+        lecteur.onload = () => {
+          poseImage(p, String(lecteur.result));
+          $('[data-champ="image"]', carte).value = "(fichier chargé — pense au dossier photos/ pour publier)";
+          rafraichitVisuel();
+          sauvegarde();
+        };
+        lecteur.readAsDataURL(f);
+      });
+      carte.addEventListener("click", (e) => {
+        const act = e.target.dataset.act;
+        if (!act) return;
+        const i2 = etat.photos.indexOf(p);
+        if (act === "supprimer") {
+          if (!confirm(`Supprimer « ${p.titre || "sans titre"} » ?`)) return;
+          etat.photos.splice(i2, 1);
+        } else if (act === "monter" && i2 > 0) {
+          etat.photos.splice(i2 - 1, 0, etat.photos.splice(i2, 1)[0]);
+        } else if (act === "descendre" && i2 < etat.photos.length - 1) {
+          etat.photos.splice(i2 + 1, 0, etat.photos.splice(i2, 1)[0]);
+        } else return;
+        rendPhotos();
+        sauvegarde();
+      });
+      return carte;
+    }
+
+    function rendPhotos() {
+      listePhotos.textContent = "";
+      etat.photos.forEach((p, i) => listePhotos.appendChild(cartePhoto(p, i)));
+    }
+
+    $("#ajouter-photo").addEventListener("click", () => {
+      etat.photos.push({
+        image: "", alt: "", titre: "nouvelle photo", categorie: "paysages",
+        date: "", lieu: "", description: "", phrase: "", taille: "moyenne",
+      });
+      rendPhotos();
+      sauvegarde();
+      listePhotos.lastElementChild.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    /* ---------- onglet textes ---------- */
+    function rendTextes() {
+      const conteneur = $("#liste-textes");
+      conteneur.textContent = "";
+      for (const [cle, libelle] of LIBELLES_TEXTES) {
+        const div = document.createElement("div");
+        div.className = "champ";
+        const id = `t-${cle}`;
+        div.innerHTML = `<label for="${id}">${libelle}</label><textarea id="${id}" rows="2"></textarea>`;
+        const zone = $("textarea", div);
+        zone.value = etat.textes[cle] || defauts.textes[cle] || "";
+        zone.addEventListener("input", () => { etat.textes[cle] = zone.value; sauvegarde(); });
+        conteneur.appendChild(div);
+      }
+      $("#c-email").value = etat.contact.email || defauts.contact.email;
+      $("#c-insta-url").value = etat.contact.instaUrl || defauts.contact.instaUrl;
+      $("#c-insta-texte").value = etat.contact.instaTexte || defauts.contact.instaTexte;
+    }
+    $("#c-email").addEventListener("input", (e) => { etat.contact.email = e.target.value; sauvegarde(); });
+    $("#c-insta-url").addEventListener("input", (e) => { etat.contact.instaUrl = e.target.value; sauvegarde(); });
+    $("#c-insta-texte").addEventListener("input", (e) => { etat.contact.instaTexte = e.target.value; sauvegarde(); });
+
+    /* ---------- onglet portrait ---------- */
+    const apercu = $("#apercu");
+    function rendApercu() {
+      $$(".calque", apercu).forEach((c) => c.remove());
+      for (const nom of ["chapeau", "moustache", "perso"]) {
+        const c = etat.portrait[nom];
+        const div = document.createElement("div");
+        div.className = `calque calque-${nom}`;
+        div.innerHTML = SVGS[nom];
+        div.style.left = `${c.x}%`;
+        div.style.top = `${c.y}%`;
+        div.style.width = `${c.w}%`;
+        div.style.setProperty("--rot", `${c.r}deg`);
+        if (c.visible === false) div.style.display = "none";
+        apercu.appendChild(div);
+      }
+      const img = $("#apercu-img");
+      const vide = $("#apercu-vide");
+      if (etat.portrait.image) {
+        img.src = versAdmin(etat.portrait.image);
+        img.hidden = false;
+        vide.hidden = true;
+      } else {
+        img.hidden = true;
+        vide.hidden = false;
+      }
+    }
+
+    function rendControlesPortrait() {
+      const conteneur = $("#calques-controles");
+      conteneur.textContent = "";
+      const AXES = [
+        ["x", "position ↔", 0, 100],
+        ["y", "position ↕", -10, 110],
+        ["w", "taille", 5, 90],
+        ["r", "rotation", -45, 45],
+      ];
+      for (const nom of ["chapeau", "moustache", "perso"]) {
+        const c = etat.portrait[nom];
+        const fs = document.createElement("fieldset");
+        fs.innerHTML = `<legend>${NOMS_CALQUES[nom]}
+            <input type="checkbox" ${c.visible !== false ? "checked" : ""} title="visible"> visible</legend>
+          <div class="curseurs"></div>`;
+        $("legend input", fs).addEventListener("change", (e) => {
+          c.visible = e.target.checked;
+          rendApercu();
+          sauvegarde();
+        });
+        const grille = $(".curseurs", fs);
+        for (const [axe, libelle, min, max] of AXES) {
+          const ligne = document.createElement("div");
+          ligne.className = "curseur";
+          ligne.innerHTML = `<label>${libelle}</label>
+            <input type="range" min="${min}" max="${max}" step="1" value="${c[axe]}">
+            <output>${c[axe]}</output>`;
+          const range = $("input", ligne);
+          range.addEventListener("input", () => {
+            c[axe] = +range.value;
+            $("output", ligne).textContent = range.value;
+            rendApercu();
+            sauvegarde();
+          });
+          grille.appendChild(ligne);
+        }
+        conteneur.appendChild(fs);
+      }
+      $("#p-image").value = /^data:/.test(etat.portrait.image) ? "(fichier chargé)" : etat.portrait.image;
+    }
+
+    $("#p-image").addEventListener("input", (e) => {
+      if (e.target.value.startsWith("(fichier")) return;
+      etat.portrait.image = e.target.value.trim();
+      rendApercu();
+      sauvegarde();
+    });
+    $("#p-fichier").addEventListener("change", (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const lecteur = new FileReader();
+      lecteur.onload = () => {
+        etat.portrait.image = String(lecteur.result);
+        $("#p-image").value = "(fichier chargé)";
+        rendApercu();
+        sauvegarde();
+      };
+      lecteur.readAsDataURL(f);
+    });
+
+    /* ---------- onglet publier ---------- */
+    function telecharge(nom, contenu) {
+      const blob = new Blob([contenu], { type: "text/javascript;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = nom;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+
+    $("#export-photos").addEventListener("click", () => {
+      const ORDRE = ["picsum", "image", "alt", "titre", "categorie", "date", "lieu", "description", "phrase", "taille"];
+      const blocs = etat.photos.map((p) => {
+        const lignes = ORDRE
+          .filter((k) => p[k] != null && p[k] !== "")
+          .map((k) => `    ${k}: ${JSON.stringify(p[k])},`);
+        return `  {\n${lignes.join("\n")}\n  }`;
+      });
+      telecharge("photos-data.js",
+        `/* virgule. — les photos (généré par /admin le ${new Date().toLocaleDateString("fr-FR")}) */\n\nconst PHOTOS = [\n${blocs.join(",\n")},\n];\n`);
+      ditStatut("téléchargé ✓");
+    });
+
+    $("#export-config").addEventListener("click", () => {
+      const payload = {};
+      const textesDiff = {};
+      for (const [cle] of LIBELLES_TEXTES) {
+        const v = (etat.textes[cle] || "").trim();
+        if (v && v !== (defauts.textes[cle] || "")) textesDiff[cle] = v;
+      }
+      if (Object.keys(textesDiff).length) payload.textes = textesDiff;
+      const contactDiff = {};
+      for (const k of ["email", "instaUrl", "instaTexte"]) {
+        const v = (etat.contact[k] || "").trim();
+        if (v && v !== defauts.contact[k]) contactDiff[k] = v;
+      }
+      if (Object.keys(contactDiff).length) payload.contact = contactDiff;
+      if (JSON.stringify(etat.portrait) !== JSON.stringify(PORTRAIT_DEFAUT)) payload.portrait = etat.portrait;
+      telecharge("site-config.js",
+        `/* virgule. — réglages du site (généré par /admin le ${new Date().toLocaleDateString("fr-FR")}) */\n\nwindow.VIRGULE_CONFIG = ${Object.keys(payload).length ? JSON.stringify(payload, null, 2) : "null"};\n`);
+      ditStatut("téléchargé ✓");
+    });
+
+    $("#reinitialiser").addEventListener("click", () => {
+      if (!confirm("Effacer tous les réglages enregistrés dans ce navigateur ?\n(Les fichiers du site ne sont pas touchés.)")) return;
+      localStorage.removeItem(CLE_STOCKAGE);
+      location.reload();
+    });
+
+    /* ---------- initialisation ---------- */
+    async function chargeDefauts() {
+      try {
+        const rep = await fetch("../index.html", { cache: "no-cache" });
+        const doc = new DOMParser().parseFromString(await rep.text(), "text/html");
+        $$("[data-texte]", doc).forEach((el) => {
+          defauts.textes[el.dataset.texte] = htmlVersTexte(el.innerHTML);
+        });
+        const em = $("#lien-email", doc);
+        const insta = $("#lien-insta", doc);
+        if (em) defauts.contact.email = em.textContent.trim();
+        if (insta) {
+          defauts.contact.instaUrl = insta.getAttribute("href");
+          defauts.contact.instaTexte = insta.textContent.trim();
+        }
+      } catch (e) { /* pas grave : les champs partiront de vide */ }
+    }
+
+    function chargeEtat() {
+      let conf = window.VIRGULE_CONFIG || null;
+      try {
+        const brut = localStorage.getItem(CLE_STOCKAGE);
+        if (brut) conf = JSON.parse(brut);
+      } catch (e) { /* on ignore */ }
+      if (!conf) return;
+      if (Array.isArray(conf.photos) && conf.photos.length) etat.photos = clone(conf.photos);
+      if (conf.textes) Object.assign(etat.textes, conf.textes);
+      if (conf.contact) Object.assign(etat.contact, conf.contact);
+      if (conf.portrait) {
+        etat.portrait.image = conf.portrait.image || "";
+        for (const nom of ["chapeau", "moustache", "perso"]) {
+          Object.assign(etat.portrait[nom], conf.portrait[nom]);
+        }
+      }
+    }
+
+    chargeDefauts().then(() => {
+      chargeEtat();
+      rendPhotos();
+      rendTextes();
+      rendControlesPortrait();
+      rendApercu();
+      try { noteStockage((localStorage.getItem(CLE_STOCKAGE) || "").length); } catch (e) { /* rien */ }
+    });
+  })();
+  </script>
+</body>
+</html>

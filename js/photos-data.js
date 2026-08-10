@@ -16,15 +16,21 @@
      taille: "grande",               // grande | panorama | haute | moyenne | petite
    }
 
-   ⚠ Les entrées ci-dessous utilisent `picsum:` (images de démonstration).
-   Remplace-les par `image:` avec tes propres fichiers, et adapte `alt`.
+   Astuce vitesse : si le chemin contient `{w}`, le site choisit tout seul
+   la bonne taille parmi 700, 1100 et 1600 px de large.
+   Exemple : image: "photos/fjord-{w}.webp" avec les fichiers
+   fjord-700.webp, fjord-1100.webp et fjord-1600.webp dans le dossier.
+   Un chemin simple sans {w} marche aussi, avec un seul fichier.
+
+   Les entrées ci-dessous sont des images de démonstration (photos/demo/).
+   Remplace-les par tes propres fichiers, et adapte `alt`.
    Idéalement, respecte à peu près les proportions de chaque taille :
    grande 4:3 · panorama 16:10 · haute 3:4 · moyenne 4:3 · petite 1:1
    ========================================================================== */
 
 const PHOTOS = [
   {
-    picsum: 1015,
+    image: "photos/demo/01-{w}.webp",
     alt: "un fjord aux eaux bleues serpente entre de hautes falaises",
     titre: "le fleuve prenait son temps",
     categorie: "paysages",
@@ -35,7 +41,7 @@ const PHOTOS = [
     taille: "grande",
   },
   {
-    picsum: 1016,
+    image: "photos/demo/02-{w}.webp",
     alt: "des falaises rouges embrasées par la lumière du soir",
     titre: "la falaise ne voulait pas poser",
     categorie: "paysages",
@@ -46,7 +52,7 @@ const PHOTOS = [
     taille: "haute",
   },
   {
-    picsum: 237,
+    image: "photos/demo/03-{w}.webp",
     alt: "un chiot noir regarde fixement l'objectif, vu de dessus",
     titre: "le chien qui savait",
     categorie: "animaux",
@@ -57,7 +63,7 @@ const PHOTOS = [
     taille: "petite",
   },
   {
-    picsum: 599,
+    image: "photos/demo/04-{w}.webp",
     alt: "une montagne sombre émerge du brouillard au-dessus d'un lac",
     titre: "brouillard, avec insistance",
     categorie: "paysages",
@@ -68,7 +74,7 @@ const PHOTOS = [
     taille: "panorama",
   },
   {
-    picsum: 1025,
+    image: "photos/demo/05-{w}.webp",
     alt: "un carlin très digne, enroulé dans une couverture à carreaux",
     titre: "monsieur le directeur",
     categorie: "animaux",
@@ -79,7 +85,7 @@ const PHOTOS = [
     taille: "moyenne",
   },
   {
-    picsum: 375,
+    image: "photos/demo/06-{w}.webp",
     alt: "une personne en capuche au milieu d'un champ de marguerites, au crépuscule",
     titre: "portrait de quelqu'un de patient",
     categorie: "portraits",
@@ -90,7 +96,7 @@ const PHOTOS = [
     taille: "haute",
   },
   {
-    picsum: 102,
+    image: "photos/demo/07-{w}.webp",
     alt: "des framboises posées sur une table, en très gros plan",
     titre: "framboises, vues de très près",
     categorie: "macro",
@@ -101,7 +107,7 @@ const PHOTOS = [
     taille: "petite",
   },
   {
-    picsum: 164,
+    image: "photos/demo/08-{w}.webp",
     alt: "des maisons anciennes penchées au bord d'un canal",
     titre: "l'immeuble faisait le fier",
     categorie: "architecture",
@@ -112,7 +118,7 @@ const PHOTOS = [
     taille: "grande",
   },
   {
-    picsum: 1080,
+    image: "photos/demo/09-{w}.webp",
     alt: "des fraises éclatantes qui remplissent tout le cadre",
     titre: "nature morte, très vivante",
     categorie: "macro",
@@ -123,7 +129,7 @@ const PHOTOS = [
     taille: "moyenne",
   },
   {
-    picsum: 1047,
+    image: "photos/demo/10-{w}.webp",
     alt: "une ruelle étroite entre deux hauts immeubles de brique",
     titre: "géométrie sans permis",
     categorie: "architecture",
@@ -134,7 +140,7 @@ const PHOTOS = [
     taille: "haute",
   },
   {
-    picsum: 250,
+    image: "photos/demo/11-{w}.webp",
     alt: "un appareil photo argentique posé sur les touches d'un piano",
     titre: "l'appareil d'un collègue",
     categorie: "détails",
@@ -145,7 +151,7 @@ const PHOTOS = [
     taille: "petite",
   },
   {
-    picsum: 338,
+    image: "photos/demo/12-{w}.webp",
     alt: "une silhouette en capuche marche le long d'une plage grise",
     titre: "inconnu, mais poli",
     categorie: "portraits",
@@ -156,7 +162,7 @@ const PHOTOS = [
     taille: "moyenne",
   },
   {
-    picsum: 206,
+    image: "photos/demo/13-{w}.webp",
     alt: "un verger traversé par une lumière dorée de fin de journée",
     titre: "la lumière de 19h47",
     categorie: "lumière",
@@ -167,7 +173,7 @@ const PHOTOS = [
     taille: "grande",
   },
   {
-    picsum: 548,
+    image: "photos/demo/14-{w}.webp",
     alt: "des étincelles s'élèvent d'un feu dans la nuit",
     titre: "poussière en apesanteur",
     categorie: "lumière",
@@ -178,7 +184,7 @@ const PHOTOS = [
     taille: "haute",
   },
   {
-    picsum: 403,
+    image: "photos/demo/15-{w}.webp",
     alt: "les touches rondes d'une vieille machine à écrire",
     titre: "la machine avait quelque chose à dire",
     categorie: "détails",

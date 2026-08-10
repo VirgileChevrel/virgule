@@ -469,7 +469,11 @@ a, button, [role="button"] {
 }
 
 /* ---------- à propos ---------- */
-.apropos { padding: 6rem var(--gouttiere); }
+.apropos {
+  padding: 6rem var(--gouttiere);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 980px;
+}
 
 .apropos-grille {
   display: grid;
@@ -491,6 +495,57 @@ a, button, [role="button"] {
   margin: 0 auto;
   transform: rotate(2deg);
 }
+
+/* le portrait photo : la vraie tête de Virgile, accessoires par-dessus */
+.fiche--photo { padding: 3rem 2.6rem 2.2rem; }
+.portrait {
+  position: relative;
+  width: min(100%, 340px);
+  margin: 0 auto;
+  transform: rotate(-1.2deg);
+}
+.portrait-img {
+  width: 100%;
+  border: 1.5px solid var(--noir);
+  background: var(--papier);
+}
+.portrait-placeholder {
+  aspect-ratio: 3 / 4;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.3rem;
+  text-align: center;
+  border: 1.5px dashed var(--encre);
+  background:
+    repeating-linear-gradient(-45deg, transparent 0 14px, rgba(74, 66, 52, 0.05) 14px 15px),
+    var(--papier);
+  padding: 1rem;
+}
+.pp-titre {
+  margin: 3.2rem 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+.pp-note {
+  margin: 0;
+  font-family: var(--main);
+  font-size: 1.15rem;
+  color: var(--encre);
+  transform: rotate(-2deg);
+}
+/* les calques posés par main.js : chapeau, moustache, petit perso */
+.portrait-calque {
+  position: absolute;
+  line-height: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  filter: drop-shadow(1px 2px 0 rgba(27, 22, 16, 0.18));
+}
+.portrait-calque svg { width: 100%; height: auto; overflow: visible; }
+.calque-perso { filter: none; }
 .fiche-legende {
   margin-top: 1.6rem;
   text-align: center;
@@ -561,6 +616,8 @@ a, button, [role="button"] {
 .contact {
   padding: 7rem var(--gouttiere) 8rem;
   text-align: center;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
 }
 .contact .titre-section { transform: rotate(0.8deg); }
 
@@ -628,6 +685,42 @@ a, button, [role="button"] {
 }
 .pied-int a { text-decoration: none; }
 .pied-int a:hover { color: var(--rouille-texte); }
+.pied-liens { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+
+/* ---------- page mentions légales ---------- */
+.page-legale {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 8rem var(--gouttiere) 5rem;
+}
+.page-legale .titre-section { margin-bottom: 2.5rem; }
+.legale-bloc { margin: 0 0 2.6rem; }
+.legale-bloc h2 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.45rem;
+  margin: 0 0 0.7rem;
+}
+.legale-bloc p { margin: 0 0 0.8rem; }
+.legale-note {
+  font-family: var(--main);
+  font-size: 1.2rem;
+  color: var(--encre);
+  transform: rotate(-1deg);
+}
+.legale-retour {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-family: var(--serif);
+  font-style: italic;
+  text-decoration: none;
+  border: 1.5px solid var(--noir);
+  border-radius: var(--tordu);
+  padding: 0.55rem 1.2rem;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+.legale-retour:hover { background: var(--moutarde); transform: rotate(-1deg); }
 
 /* ---------- lightbox (le voile) ---------- */
 .voile {
@@ -842,7 +935,7 @@ body.grand-soir .perso .moustache { animation: fretille 2.4s ease-in-out infinit
 }
 
 /* flottement discret du personnage du hero */
-.hero-perso .perso { animation: flotte 5s ease-in-out infinite; }
+.hero-perso .perso { animation: flotte 5s ease-in-out infinite; will-change: transform; }
 @keyframes flotte {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-7px); }
@@ -852,8 +945,8 @@ body.grand-soir .perso .moustache { animation: fretille 2.4s ease-in-out infinit
 /* uniquement quand JS tourne (html.js) : sans script, tout reste visible */
 html.js [data-reveal] {
   opacity: 0;
-  transform: translateY(18px) rotate(0.4deg);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(14px) rotate(0.4deg);
+  transition: opacity 0.55s ease, transform 0.55s ease;
   transition-delay: var(--d, 0ms);
 }
 html.js [data-reveal].vu { opacity: 1; transform: none; }

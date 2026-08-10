@@ -10,6 +10,99 @@
   const mouvReduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ------------------------------------------------------------------
+     config éditable — le panneau /admin écrit dans localStorage,
+     js/site-config.js sert pour la version publiée
+  ------------------------------------------------------------------ */
+  let CONFIG = window.VIRGULE_CONFIG || null;
+  try {
+    const brut = localStorage.getItem("virgule-config");
+    if (brut) CONFIG = JSON.parse(brut);
+  } catch (e) { /* stockage indisponible : valeurs par défaut */ }
+
+  const LISTE = (CONFIG && Array.isArray(CONFIG.photos) && CONFIG.photos.length)
+    ? CONFIG.photos
+    : PHOTOS;
+
+  const escHtml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  /* un texte du panneau : les sauts de ligne deviennent <br>,
+     une ligne entière entre parenthèses devient une nuance en <em> */
+  function texteVersHtml(v) {
+    return String(v).split("\n").map((l) => {
+      const t = escHtml(l.trim());
+      return /^\(.*\)$/.test(l.trim()) ? `<em>${t}</em>` : t;
+    }).join("<br>");
+  }
+
+  if (CONFIG && CONFIG.textes) {
+    for (const [cle, val] of Object.entries(CONFIG.textes)) {
+      if (val == null || String(val).trim() === "") continue;
+      $$(`[data-texte="${CSS.escape(cle)}"]`).forEach((el) => { el.innerHTML = texteVersHtml(val); });
+    }
+  }
+  if (CONFIG && CONFIG.contact) {
+    const { email, instaUrl, instaTexte } = CONFIG.contact;
+    const lienEmail = $("#lien-email");
+    const lienInsta = $("#lien-insta");
+    if (email && lienEmail) { lienEmail.href = `mailto:${email}`; lienEmail.textContent = email; }
+    if (lienInsta && instaUrl) lienInsta.href = instaUrl;
+    if (lienInsta && instaTexte) lienInsta.textContent = instaTexte;
+  }
+
+  /* ------------------------------------------------------------------
+     le portrait — la photo de Virgile, chapeau et moustache par-dessus,
+     et le petit perso posé sur l'épaule (réglable depuis /admin)
+  ------------------------------------------------------------------ */
+  const PORTRAIT_DEFAUT = {
+    image: "",
+    chapeau:   { x: 50, y: 4,  w: 52, r: -8, visible: true },
+    moustache: { x: 50, y: 46, w: 26, r: -2, visible: true },
+    perso:     { x: 82, y: 84, w: 26, r: 6,  visible: true },
+  };
+
+  const chapeauSVG = `<svg viewBox="0 0 120 62" aria-hidden="true" focusable="false">
+    <g transform="rotate(-2 60 31)">
+      <rect x="2" y="47" width="116" height="11" rx="5.5" fill="#1B1610"/>
+      <rect x="24" y="4" width="72" height="47" rx="7" fill="#1B1610"/>
+      <rect x="24" y="33" width="72" height="12" fill="#D9A62E"/>
+    </g>
+  </svg>`;
+  const moustacheSVG = `<svg viewBox="60 125 104 32" aria-hidden="true" focusable="false">
+    <path fill="#BF4E24" d="M112 133 C 96 127, 80 129, 68 141 C 63 147, 66 155, 74 152 C 88 147, 100 144, 112 139 Z"/>
+    <path fill="#BF4E24" d="M112 133 C 128 127, 144 129, 156 141 C 161 147, 158 155, 150 152 C 136 147, 124 144, 112 139 Z"/>
+  </svg>`;
+
+  const portrait = $("#portrait");
+  if (portrait) {
+    const confP = CONFIG && CONFIG.portrait ? CONFIG.portrait : {};
+    const calques = {
+      chapeau:   { ...PORTRAIT_DEFAUT.chapeau,   ...confP.chapeau },
+      moustache: { ...PORTRAIT_DEFAUT.moustache, ...confP.moustache },
+      perso:     { ...PORTRAIT_DEFAUT.perso,     ...confP.perso },
+    };
+    portrait.insertAdjacentHTML("beforeend", `
+      <div class="portrait-calque calque-chapeau" aria-hidden="true">${chapeauSVG}</div>
+      <div class="portrait-calque calque-moustache" aria-hidden="true">${moustacheSVG}</div>
+      <div class="portrait-calque calque-perso perso-slot" data-perso="epaule" aria-hidden="true"></div>`);
+    for (const [nom, c] of Object.entries(calques)) {
+      const el = $(`.calque-${nom}`, portrait);
+      el.style.left = `${c.x}%`;
+      el.style.top = `${c.y}%`;
+      el.style.width = `${c.w}%`;
+      el.style.setProperty("--rot", `${c.r}deg`);
+      if (c.visible === false) el.style.display = "none";
+    }
+    const image = confP.image || PORTRAIT_DEFAUT.image;
+    const img = $("#portrait-img");
+    const placeholder = $("#portrait-placeholder");
+    if (image) {
+      img.addEventListener("error", () => { img.hidden = true; placeholder.hidden = false; });
+      img.src = image;
+      img.hidden = false;
+      placeholder.hidden = true;
+    }
+  }
+
+  /* ------------------------------------------------------------------
      le personnage — une virgule à moustache, dessinée une seule fois
   ------------------------------------------------------------------ */
   function personnageSVG(variante = "") {
@@ -180,12 +273,12 @@
     cta.addEventListener("click", () => flash(persoHero));
   }
 
-  /* la fiche technique réagit à ses étiquettes */
-  const persoFiche = $(".perso--fiche");
-  if (persoFiche) {
+  /* la fiche réagit à ses étiquettes : le perso sur l'épaule s'étonne */
+  const persoEpaule = $(".perso--epaule");
+  if (persoEpaule) {
     $$(".etiquette").forEach((et) => {
-      et.addEventListener("mouseenter", () => persoFiche.classList.add("surpris"));
-      et.addEventListener("mouseleave", () => persoFiche.classList.remove("surpris"));
+      et.addEventListener("mouseenter", () => persoEpaule.classList.add("surpris"));
+      et.addEventListener("mouseleave", () => persoEpaule.classList.remove("surpris"));
     });
   }
 
@@ -222,10 +315,13 @@
     const [w, h] = RATIOS[p.taille] || RATIOS.moyenne;
     const hauteur = Math.round((largeur * h) / w);
     if (p.picsum != null) return `https://picsum.photos/id/${p.picsum}/${largeur}/${hauteur}`;
+    if (p.image && p.image.includes("{w}")) return p.image.split("{w}").join(largeur);
     return p.image;
   }
+  /* plusieurs largeurs disponibles ? picsum les génère, {w} les nomme */
+  const aVariantes = (p) => p.picsum != null || (p.image && p.image.includes("{w}"));
   function srcsetPhoto(p) {
-    if (p.picsum == null) return "";
+    if (!aVariantes(p)) return "";
     const set = [700, 1100, 1600].map((w) => `${urlPhoto(p, w)} ${w}w`).join(", ");
     return `srcset="${set}" sizes="${SIZES[p.taille] || SIZES.moyenne}"`;
   }
@@ -238,7 +334,7 @@
   const grille = $("#grille");
   const figures = [];
 
-  PHOTOS.forEach((p, i) => {
+  LISTE.forEach((p, i) => {
     const [w, h] = RATIOS[p.taille] || RATIOS.moyenne;
     const num = String(i + 1).padStart(2, "0");
     /* rotation pseudo-aléatoire mais jamais imperceptible (>= 0.5°) */
@@ -291,6 +387,9 @@
   const filtres = $("#filtres");
   let filtreEnCours = null;
 
+  /* le compte affiché suit le nombre réel de photos (modifiable via /admin) */
+  compte.textContent = `${EN_LETTRES[LISTE.length] || LISTE.length} photos, zéro mensonge.`;
+
   filtres.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-cat]");
     if (!btn) return;
@@ -342,7 +441,7 @@
   const visiblesIdx = () => figures.filter((f) => !f.hidden).map((f) => +f.dataset.index);
 
   function remplitVoile(i) {
-    const p = PHOTOS[i];
+    const p = LISTE[i];
     const [w, h] = RATIOS[p.taille] || RATIOS.moyenne;
     const liste = visiblesIdx();
     const rang = liste.indexOf(i) + 1;
@@ -359,7 +458,7 @@
     /* précharge les voisines, à la même largeur adaptée */
     [1, -1].forEach((d) => {
       const j = liste[(liste.indexOf(i) + d + liste.length) % liste.length];
-      if (j != null && j !== i) { const im = new Image(); im.src = urlPhoto(PHOTOS[j], largeur); }
+      if (j != null && j !== i) { const im = new Image(); im.src = urlPhoto(LISTE[j], largeur); }
     });
     indexCourant = i;
   }
@@ -451,7 +550,7 @@
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -4% 0px" });
     $$("[data-reveal]").forEach((el, i) => {
-      el.style.setProperty("--d", `${(i % 5) * 70}ms`);
+      el.style.setProperty("--d", `${(i % 5) * 50}ms`);
       obs.observe(el);
     });
   } else {
