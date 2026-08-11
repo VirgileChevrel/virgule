@@ -12,9 +12,10 @@
   --papier: #EDE3CC;
   --noir: #1B1610;
   --encre: #4A4234;
-  --rouille: #BF4E24;
-  /* le même rouille, assombri pour le texte courant (contraste AA >= 4,5:1) */
-  --rouille-texte: #A03D17;
+  /* le bleu du bandeau du chapeau, repris comme accent (6,8:1 sur le crème) */
+  --bleu: #385086;
+  /* le même bleu, assombri pour le texte courant (contraste AA >= 4,5:1) */
+  --bleu-texte: #2F4676;
   --sauge: #8A9B84;
   --teal: #39584C;
   --moutarde: #D9A62E;
@@ -67,7 +68,7 @@ button {
 }
 
 :focus-visible {
-  outline: 2px dashed var(--rouille);
+  outline: 2px dashed var(--bleu);
   outline-offset: 4px;
   border-radius: 2px;
 }
@@ -77,7 +78,7 @@ body {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='24' viewBox='0 0 20 24'%3E%3Ccircle cx='10.5' cy='8' r='6.5' fill='%231B1610' stroke='%23FBF6EA' stroke-width='1.4'/%3E%3Cpath d='M8.2 13 C 7.6 17, 5.8 20, 2.5 22.6 C 6.8 21.6, 10.4 18.4, 11.4 13.6 Z' fill='%231B1610' stroke='%23FBF6EA' stroke-width='1'/%3E%3C/svg%3E") 10 8, auto;
 }
 a, button, [role="button"] {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='24' viewBox='0 0 20 24'%3E%3Ccircle cx='10.5' cy='8' r='6.5' fill='%23BF4E24' stroke='%23FBF6EA' stroke-width='1.4'/%3E%3Cpath d='M8.2 13 C 7.6 17, 5.8 20, 2.5 22.6 C 6.8 21.6, 10.4 18.4, 11.4 13.6 Z' fill='%23BF4E24' stroke='%23FBF6EA' stroke-width='1'/%3E%3C/svg%3E") 10 8, pointer;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='24' viewBox='0 0 20 24'%3E%3Ccircle cx='10.5' cy='8' r='6.5' fill='%23385086' stroke='%23FBF6EA' stroke-width='1.4'/%3E%3Cpath d='M8.2 13 C 7.6 17, 5.8 20, 2.5 22.6 C 6.8 21.6, 10.4 18.4, 11.4 13.6 Z' fill='%23385086' stroke='%23FBF6EA' stroke-width='1'/%3E%3C/svg%3E") 10 8, pointer;
 }
 
 /* lien d'évasion clavier */
@@ -100,7 +101,7 @@ a, button, [role="button"] {
 .filtres button[aria-pressed="true"],
 .contact-lien:hover,
 .contact-lien:focus-visible {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 38 7, 58 4 S 100 3, 118 5' fill='none' stroke='%23BF4E24' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 38 7, 58 4 S 100 3, 118 5' fill='none' stroke='%23385086' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: left bottom;
   background-size: 100% 8px;
@@ -138,7 +139,7 @@ a, button, [role="button"] {
   font-size: 1.35rem;
   letter-spacing: -0.01em;
 }
-.point { color: var(--rouille); }
+.point { color: var(--bleu); }
 
 .entete-nav { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: flex-end; }
 .entete-nav a {
@@ -147,7 +148,7 @@ a, button, [role="button"] {
   padding-bottom: 0.15em;
 }
 .entete-nav a:hover, .entete-nav a:focus-visible {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 38 7, 58 4 S 100 3, 118 5' fill='none' stroke='%23BF4E24' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") ;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 38 7, 58 4 S 100 3, 118 5' fill='none' stroke='%23385086' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") ;
   background-repeat: no-repeat;
   background-position: left bottom;
   background-size: 100% 7px;
@@ -194,7 +195,7 @@ a, button, [role="button"] {
   font-size: clamp(1.25rem, 2.4vw, 1.8rem);
   line-height: 1.35;
 }
-.hero-phrase em { font-style: italic; color: var(--rouille-texte); }
+.hero-phrase em { font-style: italic; color: var(--bleu-texte); }
 
 .cta {
   display: inline-block;
@@ -247,8 +248,8 @@ a, button, [role="button"] {
   stroke-linejoin: round;
 }
 .annot-moi { top: -2.2rem; left: -4.5rem; transform: rotate(-7deg); }
-.annot-app { bottom: -2.4rem; right: -1.5rem; transform: rotate(3deg); color: var(--rouille-texte); }
-.annot-toi { position: static; display: inline-block; transform: rotate(-3deg); color: var(--rouille-texte); margin-top: 0.4rem; }
+.annot-app { bottom: -2.4rem; right: -1.5rem; transform: rotate(3deg); color: var(--bleu-texte); }
+.annot-toi { position: static; display: inline-block; transform: rotate(-3deg); color: var(--bleu-texte); margin-top: 0.4rem; }
 
 /* ---------- sections communes ---------- */
 .titre-section {
@@ -261,7 +262,7 @@ a, button, [role="button"] {
   letter-spacing: -0.02em;
   transform: rotate(-0.8deg);
 }
-.virg { color: var(--rouille); }
+.virg { color: var(--bleu); }
 
 /* ---------- galerie ---------- */
 .galerie {
@@ -290,8 +291,8 @@ a, button, [role="button"] {
   padding: 0 0.1em 0.2em;
   transition: color 0.2s ease;
 }
-.filtres button:hover { color: var(--rouille-texte); }
-.filtres button[aria-pressed="true"] { color: var(--rouille-texte); }
+.filtres button:hover { color: var(--bleu-texte); }
+.filtres button[aria-pressed="true"] { color: var(--bleu-texte); }
 
 /* grille éditoriale asymétrique */
 .grille {
@@ -356,7 +357,7 @@ a, button, [role="button"] {
 }
 .photo[data-pos="1"] .photo-cadre::before { background: var(--sauge); }
 .photo[data-pos="3"] .photo-cadre::before { background: var(--moutarde); }
-.photo[data-pos="5"] .photo-cadre::before { background: var(--rouille); }
+.photo[data-pos="5"] .photo-cadre::before { background: var(--bleu); }
 /* les éléments très larges amplifient la rotation : on la tempère */
 .t-panorama .photo-cadre::before { transform: rotate(0.6deg) translate(8px, 10px); }
 @media (hover: hover) {
@@ -544,7 +545,7 @@ a, button, [role="button"] {
   transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
   filter: drop-shadow(1px 2px 0 rgba(27, 22, 16, 0.18));
 }
-.portrait-calque svg { width: 100%; height: auto; overflow: visible; }
+.portrait-calque svg { display: block; width: 100%; height: auto; overflow: visible; }
 .calque-perso { filter: none; }
 .fiche-legende {
   margin-top: 1.6rem;
@@ -562,7 +563,7 @@ a, button, [role="button"] {
   line-height: 1.1;
   color: var(--encre);
 }
-.etiquette em { color: var(--rouille-texte); font-style: normal; font-size: 0.95em; }
+.etiquette em { color: var(--bleu-texte); font-style: normal; font-size: 0.95em; }
 .e-chapeau   { top: 1.2rem; right: 1.4rem; transform: rotate(4deg); text-align: right; }
 .e-moustache { top: 42%; left: 0.9rem; transform: rotate(-5deg); }
 .e-appareil  { bottom: 22%; right: 1rem; transform: rotate(3deg); text-align: right; }
@@ -586,7 +587,7 @@ a, button, [role="button"] {
   font-size: clamp(1.15rem, 1.8vw, 1.45rem);
   line-height: 1.45;
 }
-.bio-ligne em { color: var(--rouille-texte); }
+.bio-ligne em { color: var(--bleu-texte); }
 
 .stats {
   margin: 2.5rem 0 0;
@@ -637,7 +638,7 @@ a, button, [role="button"] {
 }
 .contact-lien:hover, .contact-lien:focus-visible {
   transform: rotate(-1.2deg);
-  color: var(--rouille-texte);
+  color: var(--bleu-texte);
 }
 .contact-liens .virg { margin-right: 0.6em; }
 
@@ -684,7 +685,7 @@ a, button, [role="button"] {
   text-align: center;
 }
 .pied-int a { text-decoration: none; }
-.pied-int a:hover { color: var(--rouille-texte); }
+.pied-int a:hover { color: var(--bleu-texte); }
 .pied-liens { display: flex; gap: 1.4rem; flex-wrap: wrap; }
 
 /* ---------- page mentions légales ---------- */
@@ -829,7 +830,7 @@ html.fige, html.fige body { overflow: hidden; }
   margin: 0;
   font-family: var(--main);
   font-size: 1.35rem;
-  color: var(--rouille-texte);
+  color: var(--bleu-texte);
   transform: rotate(-1.5deg);
 }
 
@@ -846,7 +847,7 @@ html.fige, html.fige body { overflow: hidden; }
   padding: 0.35rem 0.7rem;
   transition: transform 0.2s ease, color 0.2s ease;
 }
-.voile-nav button:hover { color: var(--rouille-texte); transform: translateY(-2px) rotate(-1deg); }
+.voile-nav button:hover { color: var(--bleu-texte); transform: translateY(-2px) rotate(-1deg); }
 
 /* ---------- flash d'appareil photo ---------- */
 .eclat {
@@ -883,6 +884,67 @@ html.fige, html.fige body { overflow: hidden; }
   pointer-events: none;
 }
 .toast.montre { opacity: 1; transform: rotate(-1.5deg) translateY(0); }
+
+/* ---------- la parade (easter egg : code konami) ---------- */
+.parade {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0.5rem;
+  z-index: 60;
+  pointer-events: none;
+  height: 84px;
+}
+.parade .perso-slot {
+  position: absolute;
+  bottom: 0;
+  width: 74px;
+  animation: traverse 7s linear forwards;
+}
+.parade .perso { animation: sautille 0.5s ease-in-out infinite; }
+@keyframes traverse {
+  from { transform: translateX(-120px); }
+  to   { transform: translateX(calc(100vw + 120px)); }
+}
+@keyframes sautille {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-9px) rotate(3deg); }
+}
+
+/* ---------- ponctuation qui dérive en fond du hero ---------- */
+.ponctuation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.ponctuation span {
+  position: absolute;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 900;
+  color: var(--bleu);
+  opacity: 0.07;
+  animation: derive 22s ease-in-out infinite;
+}
+.ponctuation span:nth-child(1) { left: 6%;  top: 18%; font-size: 7rem;   animation-duration: 24s; }
+.ponctuation span:nth-child(2) { left: 26%; top: 72%; font-size: 5rem;   animation-duration: 19s; animation-delay: -6s; }
+.ponctuation span:nth-child(3) { left: 44%; top: 12%; font-size: 4rem;   animation-duration: 27s; animation-delay: -12s; }
+.ponctuation span:nth-child(4) { left: 62%; top: 82%; font-size: 8rem;   animation-duration: 21s; animation-delay: -3s; }
+.ponctuation span:nth-child(5) { left: 82%; top: 24%; font-size: 4.5rem; animation-duration: 25s; animation-delay: -9s; }
+.ponctuation span:nth-child(6) { left: 14%; top: 46%; font-size: 3.5rem; animation-duration: 18s; animation-delay: -15s; }
+.ponctuation span:nth-child(7) { left: 90%; top: 62%; font-size: 5.5rem; animation-duration: 23s; animation-delay: -7s; }
+.ponctuation span:nth-child(8) { left: 36%; top: 34%; font-size: 3rem;   animation-duration: 20s; animation-delay: -18s; }
+@keyframes derive {
+  0%, 100% { transform: translate(0, 0) rotate(-4deg); }
+  33%      { transform: translate(14px, -18px) rotate(5deg); }
+  66%      { transform: translate(-10px, 12px) rotate(-8deg); }
+}
+/* le contenu du hero passe devant (sans toucher au positionnement existant :
+   .hero-sur est déjà en absolute, lui imposer relative casserait la grille) */
+.hero-sur { z-index: 1; }
+.hero-bloc, .hero-perso { position: relative; z-index: 1; }
 
 /* ---------- le personnage ---------- */
 .perso-slot { line-height: 0; }
@@ -926,6 +988,19 @@ html.fige, html.fige body { overflow: hidden; }
 .perso .moustache {
   transform-box: fill-box;
   transform-origin: center;
+}
+
+/* le coup de chapeau : easter egg déclenché en tapant « virgule » */
+.perso .chapeau {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.perso.salut .chapeau { animation: coup-de-chapeau 1.15s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes coup-de-chapeau {
+  0%        { transform: translateY(0) rotate(0deg); }
+  25%       { transform: translateY(-26px) rotate(-16deg); }
+  55%       { transform: translateY(-30px) rotate(-22deg); }
+  100%      { transform: translateY(0) rotate(0deg); }
 }
 body.grand-soir .perso .moustache { animation: fretille 2.4s ease-in-out infinite; }
 @keyframes fretille {

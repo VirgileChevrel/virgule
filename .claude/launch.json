@@ -4,8 +4,8 @@
     {
       "name": "virgule",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["--yes", "http-server", "-p", "4173", "-c-1", "."],
-      "port": 4173
+      "runtimeArgs": ["--yes", "http-server", "-p", "4180", "-c-1", "."],
+      "port": 4180
     }
   ]
 }
