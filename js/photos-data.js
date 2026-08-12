@@ -14,7 +14,22 @@
      description: "petit texte affiché en grand format.",
      phrase: "la petite phrase absurde au survol.",
      taille: "grande",               // grande | panorama | haute | moyenne | petite
+     ratio: "3/2",                   // facultatif — les VRAIES proportions du fichier
+     favori: true,                   // facultatif — la montre aussi sur l'accueil
    }
+
+   Toutes les photos apparaissent sur photos.html, triables par catégorie
+   (la barre de boutons se fabrique toute seule depuis les catégories
+   présentes ici). L'accueil, lui, ne montre que celles marquées
+   `favori: true` — c'est la sélection « mes clichés favoris », et c'est là
+   que `taille` joue. Si aucune n'est marquée, il prend les six premières,
+   pour qu'il n'y ait jamais de page vide.
+
+   `taille` dit la place que la photo prend dans la grille, `ratio` dit la forme
+   de l'image elle-même. Si tu ne le mets pas, le site suppose que la photo a la
+   forme de son emplacement. Une photo n'est jamais déformée ni recadrée : elle
+   garde ses proportions dans tous les cas. Le `ratio` sert à réserver la bonne
+   place pendant le chargement, pour que la page ne sursaute pas.
 
    Astuce vitesse : si le chemin contient `{w}`, le site choisit tout seul
    la bonne taille parmi 700, 1100 et 1600 px de large.
@@ -39,6 +54,7 @@ const PHOTOS = [
     description: "il pleuvait dix minutes avant. le fleuve a fait comme si de rien n'était.",
     phrase: "celle-là était beaucoup plus belle en vrai.",
     taille: "grande",
+    favori: true,
   },
   {
     image: "photos/demo/02-{w}.webp",
@@ -61,6 +77,7 @@ const PHOTOS = [
     description: "il a posé exactement quatre secondes. un professionnel.",
     phrase: "il me regarde encore.",
     taille: "petite",
+    favori: true,
   },
   {
     image: "photos/demo/04-{w}.webp",
@@ -72,6 +89,7 @@ const PHOTOS = [
     description: "la montagne est là, quelque part. faites-moi confiance.",
     phrase: "le brouillard a signé une décharge.",
     taille: "panorama",
+    favori: true,
   },
   {
     image: "photos/demo/05-{w}.webp",
@@ -94,6 +112,7 @@ const PHOTOS = [
     description: "on a parlé de tout, puis de rien. le déclic est parti entre les deux.",
     phrase: "celle-ci mérite une explication. je n'en ai pas.",
     taille: "haute",
+    favori: true,
   },
   {
     image: "photos/demo/07-{w}.webp",
@@ -127,6 +146,7 @@ const PHOTOS = [
     description: "la composition a duré moins longtemps que prévu.",
     phrase: "mangées douze minutes après.",
     taille: "moyenne",
+    favori: true,
   },
   {
     image: "photos/demo/10-{w}.webp",
@@ -171,6 +191,7 @@ const PHOTOS = [
     description: "à 19h48, plus rien. c'est exactement pour ça que ce métier existe.",
     phrase: "à 19h48, plus rien.",
     taille: "grande",
+    favori: true,
   },
   {
     image: "photos/demo/14-{w}.webp",

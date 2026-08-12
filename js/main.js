@@ -283,18 +283,31 @@
     moyenne:  [1200, 900],
     petite:   [1000, 1000],
   };
+  /* sur téléphone, les formats larges occupent toute la grille (voir styles.css) :
+     annoncer une largeur trop petite ferait charger la variante 700 px, puis
+     l'étirer — c'est exactement ce qui donne une photo « compressée ». */
   const SIZES = {
     grande:   "(max-width: 719px) 92vw, (max-width: 1100px) 66vw, 50vw",
     panorama: "(max-width: 719px) 92vw, 78vw",
     haute:    "(max-width: 719px) 78vw, (max-width: 1100px) 45vw, 38vw",
-    moyenne:  "(max-width: 719px) 78vw, (max-width: 1100px) 45vw, 38vw",
-    petite:   "(max-width: 719px) 62vw, (max-width: 1100px) 34vw, 30vw",
+    moyenne:  "(max-width: 719px) 92vw, (max-width: 1100px) 45vw, 38vw",
+    petite:   "(max-width: 719px) 78vw, (max-width: 1100px) 34vw, 30vw",
   };
+
+  /* une photo peut annoncer ses vraies proportions (ratio: "3/2") : c'est elles
+     qui réservent la place avant le chargement, sinon on retombe sur celles de
+     l'emplacement et la page sursaute quand l'image arrive. Dans tous les cas
+     l'image s'affiche à ses proportions naturelles, jamais déformée. */
+  function ratioPhoto(p) {
+    const parts = String(p.ratio || "").split(/[/:x]/).map(Number);
+    if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) return parts;
+    return RATIOS[p.taille] || RATIOS.moyenne;
+  }
 
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 
   function urlPhoto(p, largeur) {
-    const [w, h] = RATIOS[p.taille] || RATIOS.moyenne;
+    const [w, h] = ratioPhoto(p);
     const hauteur = Math.round((largeur * h) / w);
     if (p.picsum != null) return `https://picsum.photos/id/${p.picsum}/${largeur}/${hauteur}`;
     if (p.image && p.image.includes("{w}")) return p.image.split("{w}").join(largeur);
@@ -313,41 +326,113 @@
     return [700, 1100, 1600].find((w) => w >= cible) || 1600;
   };
 
-  const grille = $("#grille");
-  const figures = [];
-
-  LISTE.forEach((p, i) => {
-    const [w, h] = RATIOS[p.taille] || RATIOS.moyenne;
+  /* une carte photo — le même objet sur les deux pages, seule la grille
+     qui l'accueille change. `i` est le rang dans LISTE : c'est lui qui sert
+     de clé au voile, quel que soit l'ordre d'affichage. */
+  function carte(p, i) {
+    const [w, h] = ratioPhoto(p);
     const num = String(i + 1).padStart(2, "0");
+    /* l'export du panneau /admin omet les champs vides : tout est optionnel ici */
+    const titre = p.titre || "sans titre";
+    const meta = [p.categorie || "sans catégorie", p.lieu].filter(Boolean).join(" · ");
     /* rotation pseudo-aléatoire mais jamais imperceptible (>= 0.5°) */
     let tilt = ((((i * 137 + 41) % 100) / 100) * 2.6 - 1.3);
     if (Math.abs(tilt) < 0.5) tilt += tilt < 0 ? -0.5 : 0.5;
     const fig = document.createElement("figure");
     fig.className = `photo t-${p.taille}`;
-    fig.dataset.cat = p.categorie;
+    fig.dataset.cat = p.categorie || "sans catégorie";
     fig.dataset.index = i;
     fig.style.setProperty("--tilt", `${tilt.toFixed(2)}deg`);
     fig.setAttribute("data-reveal", "");
     fig.innerHTML = `
-      <button class="photo-cadre" type="button" aria-haspopup="dialog" aria-label="agrandir « ${esc(p.titre)} »">
+      <button class="photo-cadre" type="button" aria-haspopup="dialog" aria-label="agrandir « ${esc(titre)} »">
         <span class="photo-fen"><img src="${urlPhoto(p, 1100)}" ${srcsetPhoto(p)}
-          alt="${esc(p.alt || p.titre)}" width="${w}" height="${h}"
+          alt="${esc(p.alt || titre)}" width="${w}" height="${h}"
           loading="lazy" decoding="async"></span>
-        <span class="photo-phrase">${esc(p.phrase)}</span>
+        ${p.phrase ? `<span class="photo-phrase">${esc(p.phrase)}</span>` : ""}
       </button>
       <figcaption class="photo-legende">
         <span class="photo-num">n°${num}</span>
-        <span class="photo-titre">${esc(p.titre)}</span>
-        <span class="photo-meta">${esc(p.categorie)} · ${esc(p.lieu)}</span>
+        <span class="photo-titre">${esc(titre)}</span>
+        <span class="photo-meta">${esc(meta)}</span>
       </figcaption>`;
     fig.querySelector(".photo-cadre").addEventListener("click", (e) => {
       const origine = e.currentTarget;
       flash(null);
       setTimeout(() => ouvrirVoile(i, origine), mouvReduit ? 0 : 120);
     });
-    grille.appendChild(fig);
+    return fig;
+  }
+
+  const grille = $("#grille");                 /* accueil : la sélection */
+  const figures = [];
+  /* figures est rempli dans l'ordre d'affichage : c'est cet ordre que
+     suivent « précédente » et « suivante » dans le voile. */
+
+  function ajoute(p, i, dans) {
+    const fig = carte(p, i);
+    dans.appendChild(fig);
     figures.push(fig);
-  });
+  }
+
+  /* ---------- l'accueil : les clichés favoris ---------- */
+  if (grille) {
+    const paires = LISTE.map((p, i) => [p, i]);
+    const favoris = paires.filter(([p]) => p.favori);
+    /* aucune photo cochée ? on montre les premières plutôt qu'une page vide */
+    (favoris.length ? favoris : paires.slice(0, 6)).forEach(([p, i]) => ajoute(p, i, grille));
+  }
+
+  /* ---------- photos.html : tout le fonds, une grille + les filtres ---------- */
+  const grilleTout = $("#grille-tout");
+  if (grilleTout) {
+    LISTE.forEach((p, i) => ajoute(p, i, grilleTout));
+
+    /* la barre de filtres se construit depuis les catégories réellement
+       présentes : une catégorie inventée dans photos-data.js a son bouton,
+       une catégorie vidée n'encombre plus la barre */
+    const filtres = $("#filtres");
+    if (filtres) {
+      const ORDRE_CATS = ["paysages", "macro", "animaux", "portraits", "architecture", "détails", "lumière"];
+      const presentes = [...new Set(LISTE.map((p) => p.categorie || "sans catégorie"))];
+      const cats = [
+        ...ORDRE_CATS.filter((c) => presentes.includes(c)),
+        ...presentes.filter((c) => !ORDRE_CATS.includes(c)).sort((a, b) => a.localeCompare(b, "fr")),
+      ];
+      filtres.innerHTML = ["tout", ...cats].map((c) =>
+        `<button type="button" data-cat="${esc(c)}" aria-pressed="${String(c === "tout")}">${esc(c)}</button>`).join("");
+
+      let filtreEnCours = null;
+      filtres.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-cat]");
+        if (!btn) return;
+        const cat = btn.dataset.cat;
+        $$("button", filtres).forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+
+        clearTimeout(filtreEnCours);
+        figures.forEach((f) => {
+          const visible = cat === "tout" || f.dataset.cat === cat;
+          if (visible) {
+            f.hidden = false;
+            requestAnimationFrame(() => f.classList.remove("part"));
+          } else {
+            f.classList.add("part");
+          }
+        });
+        filtreEnCours = setTimeout(() => {
+          figures.forEach((f) => { if (f.classList.contains("part")) f.hidden = true; });
+        }, 320);
+
+        const n = figures.filter((f) => cat === "tout" || f.dataset.cat === cat).length;
+        const de = /^[aeiouâàéèêîôû]/i.test(cat) ? "d'" : "de ";
+        if (compte) {
+          compte.textContent = cat === "tout"
+            ? `${enLettres(n)} photos, zéro mensonge.`
+            : `${enLettres(n)} photo${n > 1 ? "s" : ""} ${de}${cat}, toujours zéro mensonge.`;
+        }
+      });
+    }
+  }
 
   function positionne() {
     let pos = 0;
@@ -357,51 +442,24 @@
       pos += 1;
     });
   }
-  positionne();
+  /* les décalages éditoriaux n'ont de sens que dans la grille de l'accueil */
+  if (grille) positionne();
 
   /* ------------------------------------------------------------------
-     filtres
+     le compte annoncé — il suit le nombre réel de photos (modifiable /admin).
+     Sur l'accueil il présente la sélection, sur photos.html il sert aussi
+     de réponse aux filtres (voir plus haut).
   ------------------------------------------------------------------ */
   const EN_LETTRES = ["zéro", "une", "deux", "trois", "quatre", "cinq", "six", "sept",
     "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze",
     "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt"];
+  const enLettres = (n) => EN_LETTRES[n] || n;
   const compte = $("#compte");
-  const filtres = $("#filtres");
-  let filtreEnCours = null;
-
-  /* le compte affiché suit le nombre réel de photos (modifiable via /admin) */
-  compte.textContent = `${EN_LETTRES[LISTE.length] || LISTE.length} photos, zéro mensonge.`;
-
-  filtres.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-cat]");
-    if (!btn) return;
-    const cat = btn.dataset.cat;
-    $$("button", filtres).forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
-
-    clearTimeout(filtreEnCours);
-    figures.forEach((f) => {
-      const visible = cat === "tout" || f.dataset.cat === cat;
-      if (visible) {
-        f.hidden = false;
-        requestAnimationFrame(() => f.classList.remove("part"));
-      } else {
-        f.classList.add("part");
-      }
-    });
-    filtreEnCours = setTimeout(() => {
-      figures.forEach((f) => { if (f.classList.contains("part")) f.hidden = true; });
-      positionne();
-    }, 320);
-
-    $("#galerie").classList.toggle("galerie--filtree", cat !== "tout");
-
-    const n = figures.filter((f) => cat === "tout" || f.dataset.cat === cat).length;
-    const mot = EN_LETTRES[n] || n;
-    const de = /^[aeiouâàéèêîôû]/i.test(cat) ? "d'" : "de ";
-    compte.textContent = cat === "tout"
-      ? `${mot} photos, zéro mensonge.`
-      : `${mot} photo${n > 1 ? "s" : ""} ${de}${cat}, toujours zéro mensonge.`;
-  });
+  if (compte) {
+    compte.textContent = compte.dataset.compte === "selection"
+      ? `${enLettres(figures.length)} préférées, sur ${enLettres(LISTE.length)} en tout.`
+      : `${enLettres(LISTE.length)} photos, zéro mensonge.`;
+  }
 
   /* ------------------------------------------------------------------
      le voile (lightbox)
@@ -413,29 +471,36 @@
   const voileDesc = $("#voile-desc");
   const voilePhrase = $("#voile-phrase");
   const voileNum = $("#voile-num");
-  const arrierePlan = [$(".entete"), $("main"), $(".pied")].filter(Boolean);
+  /* .lien-evasion compris : enfant direct de <body>, il resterait
+     atteignable au clavier derrière le voile ouvert */
+  const arrierePlan = [$(".lien-evasion"), $(".entete"), $("main"), $(".pied")].filter(Boolean);
   let indexCourant = -1;
   let ouvreur = null;
   let voileTimer = null;
   let navTimer = null;
   let navFin = null;
 
-  const visiblesIdx = () => figures.filter((f) => !f.hidden).map((f) => +f.dataset.index);
+  /* les photos en cours de départ (.part) ne comptent déjà plus :
+     sans ça, ouvrir le voile pendant les 320 ms du fondu de filtrage
+     ferait défiler des photos censées avoir disparu */
+  const visiblesIdx = () => figures
+    .filter((f) => !f.hidden && !f.classList.contains("part"))
+    .map((f) => +f.dataset.index);
 
   function remplitVoile(i) {
     const p = LISTE[i];
-    const [w, h] = RATIOS[p.taille] || RATIOS.moyenne;
+    const [w, h] = ratioPhoto(p);
     const liste = visiblesIdx();
     const rang = liste.indexOf(i) + 1;
     const largeur = largeurVoile();
     voileImg.width = w;
     voileImg.height = h;
     voileImg.src = urlPhoto(p, largeur);
-    voileImg.alt = p.alt || p.titre;
-    voileTitre.textContent = p.titre;
-    voileMeta.textContent = `${p.lieu} · ${p.date} · ${p.categorie}`;
-    voileDesc.textContent = p.description;
-    voilePhrase.textContent = `« ${p.phrase} »`;
+    voileImg.alt = p.alt || p.titre || "";
+    voileTitre.textContent = p.titre || "sans titre";
+    voileMeta.textContent = [p.lieu, p.date, p.categorie].filter(Boolean).join(" · ");
+    voileDesc.textContent = p.description || "";
+    voilePhrase.textContent = p.phrase ? `« ${p.phrase} »` : "";
     voileNum.textContent = `n°${String(i + 1).padStart(2, "0")} — ${rang} / ${liste.length}`;
     /* précharge les voisines, à la même largeur adaptée */
     [1, -1].forEach((d) => {
@@ -462,7 +527,11 @@
   }
 
   function fermerVoile() {
-    voile.classList.remove("ouvert");
+    /* une navigation encore en vol ne doit pas remplir un voile fermé,
+       ni laisser « change » cacher l'image à la prochaine ouverture */
+    clearTimeout(navTimer);
+    clearTimeout(navFin);
+    voile.classList.remove("ouvert", "change");
     document.documentElement.classList.remove("fige");
     arrierePlan.forEach((el) => { el.inert = false; el.removeAttribute("aria-hidden"); });
     voileTimer = setTimeout(() => { voile.hidden = true; }, 300);
@@ -537,6 +606,118 @@
     });
   } else {
     $$("[data-reveal]").forEach((el) => el.classList.add("vu"));
+  }
+
+  /* ------------------------------------------------------------------
+     machine à écrire — le texte s'écrit tout seul, une virgule bleue
+     tient lieu de curseur.
+
+     Les lettres sont posées dans le DOM dès le départ, simplement
+     transparentes : la place est déjà réservée, donc rien ne saute
+     pendant que ça s'écrit. Elles restent en `inline` (pas en
+     inline-block) pour ne pas autoriser une coupure au milieu d'un mot.
+  ------------------------------------------------------------------ */
+  const PAUSES = { ",": 280, ";": 260, ":": 220, ".": 420, "!": 420, "?": 420, "…": 460 };
+
+  function decoupeEnLettres(noeud, lettres) {
+    [...noeud.childNodes].forEach((n) => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        for (const c of n.textContent) {
+          const s = document.createElement("span");
+          s.className = "lettre";
+          s.textContent = c;
+          lettres.push(s);
+          frag.appendChild(s);
+        }
+        n.replaceWith(frag);
+      } else if (n.nodeName === "BR") {
+        lettres.push(n);
+      } else if (n.nodeType === 1) {
+        decoupeEnLettres(n, lettres);
+      }
+    });
+  }
+
+  function machineAEcrire(el, opts = {}) {
+    if (!el || mouvReduit || el.dataset.ecrit) return;
+    /* onglet en arrière-plan : le navigateur ralentit les minuteurs à environ
+       un par seconde et la phrase s'écrirait au compte-gouttes. On attend. */
+    if (document.hidden) {
+      document.addEventListener("visibilitychange", () => machineAEcrire(el, opts), { once: true });
+      return;
+    }
+    const { vitesse = 42, depart = 300 } = opts;
+    el.dataset.ecrit = "1";
+
+    /* les lecteurs d'écran reçoivent la phrase entière, pas la version
+       découpée en lettres : copie invisible + animation masquée pour eux */
+    const srOnly = document.createElement("span");
+    srOnly.className = "sr-only";
+    srOnly.textContent = (el.innerText || el.textContent).replace(/\s+/g, " ").trim();
+    const anime = document.createElement("span");
+    anime.setAttribute("aria-hidden", "true");
+    while (el.firstChild) anime.appendChild(el.firstChild);
+    el.append(srOnly, anime);
+
+    const lettres = [];
+    decoupeEnLettres(anime, lettres);
+    if (!lettres.length) return;
+
+    el.classList.add("ecrit");
+    const curseur = document.createElement("span");
+    curseur.className = "curseur";
+    curseur.setAttribute("aria-hidden", "true");
+    curseur.innerHTML = "<i>,</i>";
+    anime.prepend(curseur);
+
+    let i = 0;
+    const suivante = () => {
+      const n = lettres[i];
+      let pause = vitesse;
+      if (n.nodeName === "BR") {
+        /* c'est là que le site marque vraiment une pause */
+        pause = 540;
+      } else {
+        n.classList.add("la");
+        pause += PAUSES[n.textContent] || 0;
+      }
+      n.after(curseur);
+      i += 1;
+      if (i < lettres.length) setTimeout(suivante, pause);
+      else setTimeout(() => curseur.classList.add("fini"), 1100);
+    };
+    setTimeout(suivante, depart);
+  }
+
+  machineAEcrire($(".hero-phrase"), { depart: 420 });
+
+  /* la promesse de contact s'écrit quand on arrive dessus */
+  const promesse = $(".contact-promesse");
+  if (promesse && !mouvReduit && "IntersectionObserver" in window) {
+    const obsEcrit = new IntersectionObserver((entrees) => {
+      entrees.forEach((en) => {
+        if (!en.isIntersecting) return;
+        obsEcrit.unobserve(en.target);
+        machineAEcrire(en.target, { vitesse: 26, depart: 350 });
+      });
+    }, { threshold: 0.6 });
+    obsEcrit.observe(promesse);
+  }
+
+  /* ------------------------------------------------------------------
+     la flèche manuscrite se dessine au lieu d'apparaître.
+     La classe est posée ici : sans JS, pas de pointillés, donc pas de
+     risque de flèche invisible.
+  ------------------------------------------------------------------ */
+  if (!mouvReduit) {
+    $$(".annot-courbe").forEach((svg) => {
+      svg.classList.add("anime");
+      $$("path", svg).forEach((p, i) => {
+        p.style.setProperty("--trait", p.getTotalLength().toFixed(1));
+        p.style.setProperty("--retard", `${1200 + i * 340}ms`);
+      });
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -641,8 +822,12 @@
 
   /* ------------------------------------------------------------------
      phrase inattendue si le visiteur s'attarde
+     (sessionStorage peut lever si le stockage est bloqué : dans ce cas,
+     on considère la phrase déjà vue et on n'installe rien)
   ------------------------------------------------------------------ */
-  if (!sessionStorage.getItem("virgule-vu")) {
+  let phraseDejaVue = true;
+  try { phraseDejaVue = !!sessionStorage.getItem("virgule-vu"); } catch (e) { /* stockage bloqué */ }
+  if (!phraseDejaVue) {
     let inactif = null;
     let dernier = 0;
     const evenements = ["pointermove", "scroll", "keydown", "click"];
@@ -652,7 +837,7 @@
       dernier = t;
       clearTimeout(inactif);
       inactif = setTimeout(() => {
-        sessionStorage.setItem("virgule-vu", "1");
+        try { sessionStorage.setItem("virgule-vu", "1"); } catch (e) { /* tant pis */ }
         evenements.forEach((ev) => removeEventListener(ev, repartir));
         ecrireToast("toujours là ? prends ton temps. les photos n'ont pas bougé depuis tout à l'heure.", 6500);
       }, 45000);

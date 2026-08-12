@@ -6,7 +6,7 @@
   <title>panneau secret — virgule.</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#F4EDDD">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='17' cy='12' r='9' fill='%23385086'/%3E%3Cpath d='M14 19 C 13 24, 10 28, 5 31 C 11 30, 17 26, 19 20 Z' fill='%23385086'/%3E%3C/svg%3E">
+  <link rel="icon" href="../logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Archivo:wght@400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
@@ -61,6 +61,12 @@
     textarea { resize: vertical; min-height: 2.4rem; }
     input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px dashed var(--bleu); outline-offset: 2px; }
     .champ { margin-bottom: 0.8rem; }
+    /* une case à cocher se lit en minuscules, pas en petites capitales */
+    .case {
+      display: flex; align-items: center; gap: 0.45rem; margin: 0.35rem 0 0;
+      text-transform: none; letter-spacing: 0; font-size: 0.92rem; color: var(--noir);
+    }
+    .case input { flex: none; }
     .rangee { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
     .btn {
       font: inherit; cursor: pointer; background: var(--ivoire); color: var(--noir);
@@ -147,6 +153,13 @@
       25% { transform: rotate(-0.6deg) translateX(-7px); }
       75% { transform: rotate(-0.6deg) translateX(7px); }
     }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
     .ligne-code {
       display: block; background: var(--papier); border: 1.5px dashed var(--encre);
       border-radius: 4px; padding: 0.6rem 0.8rem; margin: 0.6rem 0;
@@ -194,8 +207,14 @@
 
   <main>
     <section id="sec-photos" role="tabpanel">
-      <p class="aide">chaque carte est une photo de la galerie. tout ce que tu tapes est enregistré automatiquement (dans ce navigateur).</p>
+      <p class="aide">chaque carte est une photo. toutes apparaissent sur la page « toutes les photos » (triables par catégorie) ; celles cochées « clichés favoris » s'affichent en plus sur l'accueil, avec la taille choisie. tout ce que tu tapes est enregistré automatiquement (dans ce navigateur).</p>
       <div id="liste-photos"></div>
+      <!-- suggestions partagées par tous les champs catégorie des cartes -->
+      <datalist id="liste-categories">
+        <option>paysages</option><option>macro</option><option>animaux</option>
+        <option>portraits</option><option>architecture</option><option>détails</option>
+        <option>lumière</option>
+      </datalist>
       <button class="btn" id="ajouter-photo">+ ajouter une photo</button>
     </section>
 
@@ -356,15 +375,16 @@
     });
 
     const CLE_STOCKAGE = "virgule-config";
-    const CATEGORIES = ["paysages", "macro", "animaux", "portraits", "architecture", "détails", "lumière"];
     const TAILLES = ["grande", "panorama", "haute", "moyenne", "petite"];
 
     const LIBELLES_TEXTES = [
       ["hero-phrase", "phrase d'accueil (sous le grand titre)"],
       ["annot-moi", "annotation « lui, c'est moi »"],
       ["annot-app", "annotation sous le personnage"],
-      ["note-marge-a", "note en marge (droite de la galerie)"],
-      ["note-marge-b", "note en marge (gauche de la galerie)"],
+      ["note-marge-a", "note en marge (droite de la sélection)"],
+      ["note-marge-b", "note en marge (gauche de la sélection)"],
+      ["galerie-suite-note", "note à côté du bouton « toutes les photos » (accueil)"],
+      ["renvoi-apropos", "texte du renvoi « qui est virgule » (accueil)"],
       ["fiche-legende", "légende sous le portrait"],
       ["etiquette-chapeau", "étiquette chapeau"],
       ["etiquette-moustache", "étiquette moustache"],
@@ -527,12 +547,16 @@
           </div>
           <div class="champ"><label>fichier local</label><input type="file" data-champ="fichier" accept="image/*"></div>
           <div class="champ"><label>titre</label><input type="text" data-champ="titre" value="${(p.titre || "").replace(/"/g, "&quot;")}"></div>
-          <div class="champ"><label>catégorie</label>
-            <select data-champ="categorie">${CATEGORIES.map((c) => `<option ${c === p.categorie ? "selected" : ""}>${c}</option>`).join("")}</select>
+          <div class="champ"><label>catégorie (libre — une nouvelle crée son filtre)</label>
+            <input type="text" data-champ="categorie" list="liste-categories" value="${(p.categorie || "").replace(/"/g, "&quot;")}">
           </div>
-          <div class="champ"><label>taille dans la grille</label>
+          <div class="champ"><label>taille (grille de l'accueil)</label>
             <select data-champ="taille">${TAILLES.map((t) => `<option ${t === p.taille ? "selected" : ""}>${t}</option>`).join("")}</select>
           </div>
+          <div class="champ"><label>sur l'accueil</label>
+            <label class="case"><input type="checkbox" data-champ="favori" ${p.favori ? "checked" : ""}> un de mes clichés favoris</label>
+          </div>
+          <div class="champ"><label>proportions du fichier (rempli tout seul)</label><input type="text" data-champ="ratio" placeholder="ex. 3/2" value="${(p.ratio || "").replace(/"/g, "&quot;")}"></div>
           <div class="champ"><label>lieu</label><input type="text" data-champ="lieu" value="${(p.lieu || "").replace(/"/g, "&quot;")}"></div>
           <div class="champ"><label>date</label><input type="text" data-champ="date" value="${(p.date || "").replace(/"/g, "&quot;")}"></div>
         </div>
@@ -554,6 +578,22 @@
           const im = document.createElement("img");
           im.alt = "";
           im.onerror = () => im.replaceWith(Object.assign(document.createElement("div"), { className: "carte-visuel-vide", textContent: "image introuvable" }));
+          /* on relève les vraies proportions du fichier au passage : le site
+             s'en sert pour réserver la place et ne pas sursauter au chargement.
+             Pas pour picsum : la vignette est un recadrage 120×90, ses
+             proportions ne disent rien du fichier réellement affiché. */
+          im.onload = () => {
+            if (p.picsum != null) return;
+            if (!im.naturalWidth || !im.naturalHeight) return;
+            const pgcd = (a, b) => (b ? pgcd(b, a % b) : a);
+            const d = pgcd(im.naturalWidth, im.naturalHeight) || 1;
+            const r = `${im.naturalWidth / d}/${im.naturalHeight / d}`;
+            if (p.ratio === r) return;
+            p.ratio = r;
+            const champRatio = $('[data-champ="ratio"]', carte);
+            if (champRatio) champRatio.value = r;
+            sauvegarde();
+          };
           im.src = src;
           visuel.prepend(im);
         } else {
@@ -566,9 +606,15 @@
         const champ = e.target.dataset.champ;
         if (!champ || champ === "fichier") return;
         if (champ === "image") {
+          /* le libellé « (fichier chargé…) » n'est pas un chemin : l'écrire
+             dans p.image écraserait le fichier réellement chargé */
+          if (e.target.value.startsWith("(fichier")) return;
           poseImage(p, e.target.value);
           clearTimeout(visuelTimer);
           visuelTimer = setTimeout(rafraichitVisuel, 500);
+        } else if (champ === "favori") {
+          /* décoché = champ absent, pas `favori: false` : le fichier reste propre */
+          if (e.target.checked) p.favori = true; else delete p.favori;
         } else p[champ] = e.target.value;
         if (champ === "titre") $(".carte-titre", carte).textContent = e.target.value || "(sans titre)";
         sauvegarde();
@@ -615,7 +661,10 @@
       });
       rendPhotos();
       sauvegarde();
-      listePhotos.lastElementChild.scrollIntoView({ behavior: "smooth", block: "center" });
+      listePhotos.lastElementChild.scrollIntoView({
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "center",
+      });
     });
 
     /* ---------- onglet textes ---------- */
@@ -739,7 +788,7 @@
     }
 
     $("#export-photos").addEventListener("click", () => {
-      const ORDRE = ["picsum", "image", "alt", "titre", "categorie", "date", "lieu", "description", "phrase", "taille"];
+      const ORDRE = ["picsum", "image", "alt", "titre", "categorie", "date", "lieu", "description", "phrase", "taille", "ratio", "favori"];
       const blocs = etat.photos.map((p) => {
         const lignes = ORDRE
           .filter((k) => p[k] != null && p[k] !== "")
@@ -778,21 +827,27 @@
     });
 
     /* ---------- initialisation ---------- */
+    /* les textes du site vivent sur plusieurs pages depuis que « qui est
+       virgule » a la sienne : on les récolte toutes */
     async function chargeDefauts() {
-      try {
-        const rep = await fetch("../index.html", { cache: "no-cache" });
-        const doc = new DOMParser().parseFromString(await rep.text(), "text/html");
-        $$("[data-texte]", doc).forEach((el) => {
-          defauts.textes[el.dataset.texte] = htmlVersTexte(el.innerHTML);
-        });
-        const em = $("#lien-email", doc);
-        const insta = $("#lien-insta", doc);
-        if (em) defauts.contact.email = em.textContent.trim();
-        if (insta) {
-          defauts.contact.instaUrl = insta.getAttribute("href");
-          defauts.contact.instaTexte = insta.textContent.trim();
-        }
-      } catch (e) { /* pas grave : les champs partiront de vide */ }
+      for (const page of ["../index.html", "../apropos.html", "../photos.html"]) {
+        try {
+          const rep = await fetch(page, { cache: "no-cache" });
+          const doc = new DOMParser().parseFromString(await rep.text(), "text/html");
+          $$("[data-texte]", doc).forEach((el) => {
+            if (!(el.dataset.texte in defauts.textes)) {
+              defauts.textes[el.dataset.texte] = htmlVersTexte(el.innerHTML);
+            }
+          });
+          const em = $("#lien-email", doc);
+          const insta = $("#lien-insta", doc);
+          if (em && !defauts.contact.email) defauts.contact.email = em.textContent.trim();
+          if (insta && !defauts.contact.instaUrl) {
+            defauts.contact.instaUrl = insta.getAttribute("href");
+            defauts.contact.instaTexte = insta.textContent.trim();
+          }
+        } catch (e) { /* pas grave : ces champs-là partiront de vide */ }
+      }
     }
 
     function chargeEtat() {

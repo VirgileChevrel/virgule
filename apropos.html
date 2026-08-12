@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>qui est virgule — virgule | Photographe</title>
+  <meta name="description" content="Virgile, dit virgule. — photographe, haut-de-forme, fausse moustache, et une petite virgule sur l'épaule. la page où l'on explique tout ça.">
+  <meta name="theme-color" content="#F4EDDD">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Archivo:wght@400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="lien-evasion" href="#apropos">aller directement au contenu</a>
+
+  <header class="entete" id="entete">
+    <a href="index.html" class="marque" id="marque" aria-label="virgule, retour à l'accueil">
+      <span class="marque-perso" data-perso="mini" aria-hidden="true"></span>
+      <span class="marque-mot">virgule<span class="point">.</span></span>
+    </a>
+    <nav class="entete-nav" aria-label="navigation principale">
+      <a href="photos.html">les photos,</a>
+      <a href="apropos.html" aria-current="page">qui est virgule,</a>
+      <a href="index.html#contact">me parler.</a>
+    </nav>
+  </header>
+
+  <main id="haut">
+    <section class="apropos page-apropos" id="apropos" aria-labelledby="titre-apropos">
+      <h1 class="titre-page" id="titre-apropos" data-reveal>qui est virgule<span class="virg">&nbsp;?</span></h1>
+
+      <div class="apropos-grille">
+        <figure class="fiche fiche--photo" data-reveal aria-label="portrait de Virgile, haut-de-forme et fausse moustache, la petite virgule sur l'épaule">
+          <div class="portrait" id="portrait">
+            <img class="portrait-img" id="portrait-img" alt="Virgile, haut-de-forme sur la tête et fausse moustache, la petite virgule posée sur son épaule" hidden>
+            <div class="portrait-placeholder" id="portrait-placeholder">
+              <p class="pp-titre">ta photo ici.</p>
+              <p class="pp-note">chapeau et moustache<br>fournis par la maison.</p>
+            </div>
+            <!-- chapeau, moustache et petit perso sont posés ici par main.js -->
+          </div>
+          <figcaption class="fiche-legende" data-texte="fiche-legende">fig. 1 — l'artiste, vu par lui-même</figcaption>
+          <span class="etiquette e-chapeau" aria-hidden="true" data-texte="etiquette-chapeau">haut-de-forme<br><em>(nécessaire)</em></span>
+          <span class="etiquette e-moustache" aria-hidden="true" data-texte="etiquette-moustache">moustache<br><em>(fausse, évidemment)</em></span>
+          <span class="etiquette e-appareil" aria-hidden="true" data-texte="etiquette-appareil">appareil<br><em>(toujours prêt)</em></span>
+          <span class="etiquette e-queue" aria-hidden="true" data-texte="etiquette-queue">la virgule<br><em>(toujours sur l'épaule)</em></span>
+        </figure>
+
+        <div class="bio" data-reveal>
+          <p class="bio-nom" data-texte="bio-nom">Virgile.</p>
+          <p class="bio-metier" data-texte="bio-metier">photographe.</p>
+          <p class="bio-ligne" data-texte="bio-ligne-1">collectionneur de lumières étranges<br>et de chiens qui regardent ailleurs.</p>
+          <p class="bio-ligne" data-texte="bio-ligne-2">«&nbsp;virgule&nbsp;», parce que Virgile.<br>parce qu'une virgule, c'est une petite pause.</p>
+          <p class="bio-ligne" data-texte="bio-ligne-3">et parce que «&nbsp;Virgile Photographie&nbsp;»,<br>franchement, c'était <em>beaucoup</em> trop sérieux.</p>
+
+          <dl class="stats">
+            <div><dt data-texte="stat1-label">photos prises</dt><dd data-texte="stat1-valeur">beaucoup</dd></div>
+            <div><dt data-texte="stat2-label">photos gardées</dt><dd data-texte="stat2-valeur">les meilleures</dd></div>
+            <div><dt data-texte="stat3-label">moustache</dt><dd data-texte="stat3-valeur">une (1)</dd></div>
+            <div><dt data-texte="stat4-label">clients déçus</dt><dd data-texte="stat4-valeur">zéro (0)</dd></div>
+          </dl>
+
+          <p class="apropos-suite">
+            <a class="cta" href="photos.html">voir ce qu'il photographie&nbsp;<span class="fleche" aria-hidden="true">→</span></a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="pied-peek" aria-hidden="true">
+      <div class="perso-slot" data-perso="peek"></div>
+    </div>
+    <div class="pied-int">
+      <p>virgule. © 2026</p>
+      <p class="pied-note" data-texte="pied-note">fait avec un appareil photo, une moustache<br>et un excès de confiance.</p>
+      <nav class="pied-liens" aria-label="liens de bas de page">
+        <a href="mentions-legales.html">mentions légales</a>
+        <a href="#haut">remonter ↑</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- le voile n'a rien à montrer ici, mais main.js s'attend à le trouver -->
+  <div class="voile" id="voile" role="dialog" aria-modal="true" aria-labelledby="voile-titre" hidden>
+    <button type="button" class="voile-fermer" id="voile-fermer">fermer ✕</button>
+    <p class="voile-num" id="voile-num" role="status"></p>
+    <figure class="voile-scene">
+      <div class="voile-cadre"><img id="voile-img" src="" alt=""></div>
+      <figcaption class="voile-info" aria-live="polite">
+        <h3 class="voile-titre" id="voile-titre"></h3>
+        <p class="voile-meta" id="voile-meta"></p>
+        <p class="voile-desc" id="voile-desc"></p>
+        <p class="voile-phrase" id="voile-phrase"></p>
+      </figcaption>
+    </figure>
+    <div class="voile-nav">
+      <button type="button" class="voile-prec" id="voile-prec">← précédente</button>
+      <button type="button" class="voile-suiv" id="voile-suiv">suivante →</button>
+    </div>
+  </div>
+
+  <div class="eclat" id="eclat" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="js/photos-data.js"></script>
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>toutes les photos — virgule | Photographe</title>
+  <meta name="description" content="l'ensemble des photos de virgule., à trier par catégorie : paysages, macro, animaux, portraits, architecture, détails et lumière.">
+  <meta name="theme-color" content="#F4EDDD">
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Archivo:wght@400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="lien-evasion" href="#grille-tout">aller directement aux photos</a>
+
+  <header class="entete" id="entete">
+    <a href="index.html" class="marque" id="marque" aria-label="virgule, retour à l'accueil">
+      <span class="marque-perso" data-perso="mini" aria-hidden="true"></span>
+      <span class="marque-mot">virgule<span class="point">.</span></span>
+    </a>
+    <nav class="entete-nav" aria-label="navigation principale">
+      <a href="photos.html" aria-current="page">les photos,</a>
+      <a href="apropos.html">qui est virgule,</a>
+      <a href="index.html#contact">me parler.</a>
+    </nav>
+  </header>
+
+  <main id="haut">
+    <section class="page-photos" aria-labelledby="titre-photos">
+      <header class="page-photos-tete">
+        <h1 class="titre-page" id="titre-photos" data-reveal>toutes les photos<span class="virg">,</span></h1>
+        <p class="galerie-compte" id="compte" role="status" data-reveal>quinze photos, zéro mensonge.</p>
+        <nav class="filtres" id="filtres" aria-label="trier les photos par catégorie" data-reveal></nav>
+      </header>
+
+      <div class="grille-tout" id="grille-tout"></div>
+
+      <noscript>
+        <p class="sans-js">les photos ont besoin de javascript pour s'afficher.<br>elles sont timides, mais elles existent.</p>
+      </noscript>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="pied-peek" aria-hidden="true">
+      <div class="perso-slot" data-perso="peek"></div>
+    </div>
+    <div class="pied-int">
+      <p>virgule. © 2026</p>
+      <p class="pied-note" data-texte="pied-note">fait avec un appareil photo, une moustache<br>et un excès de confiance.</p>
+      <nav class="pied-liens" aria-label="liens de bas de page">
+        <a href="mentions-legales.html">mentions légales</a>
+        <a href="#haut">remonter ↑</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div class="voile" id="voile" role="dialog" aria-modal="true" aria-labelledby="voile-titre" hidden>
+    <button type="button" class="voile-fermer" id="voile-fermer">fermer ✕</button>
+    <p class="voile-num" id="voile-num" role="status"></p>
+    <figure class="voile-scene">
+      <div class="voile-cadre"><img id="voile-img" src="" alt=""></div>
+      <figcaption class="voile-info" aria-live="polite">
+        <h3 class="voile-titre" id="voile-titre"></h3>
+        <p class="voile-meta" id="voile-meta"></p>
+        <p class="voile-desc" id="voile-desc"></p>
+        <p class="voile-phrase" id="voile-phrase"></p>
+      </figcaption>
+    </figure>
+    <div class="voile-nav">
+      <button type="button" class="voile-prec" id="voile-prec">← précédente</button>
+      <button type="button" class="voile-suiv" id="voile-suiv">suivante →</button>
+    </div>
+  </div>
+
+  <div class="eclat" id="eclat" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="js/photos-data.js"></script>
+  <script src="js/site-config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

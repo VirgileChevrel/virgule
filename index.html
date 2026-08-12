@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>virgule. — photographe de moments qui allaient partir</title>
+  <title>virgule | Photographe</title>
   <meta name="description" content="virgule. — le portfolio de Virgile, photographe. paysages, portraits, champignons suspects et lumières étranges, capturés juste avant qu'ils changent d'avis.">
   <meta name="theme-color" content="#F4EDDD">
   <script>document.documentElement.classList.add("js");</script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='17' cy='12' r='9' fill='%231B1610'/%3E%3Cpath d='M14 19 C 13 24, 10 28, 5 31 C 11 30, 17 26, 19 20 Z' fill='%231B1610'/%3E%3C/svg%3E">
+  <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Archivo:wght@400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
@@ -22,8 +22,8 @@
       <span class="marque-mot">virgule<span class="point">.</span></span>
     </a>
     <nav class="entete-nav" aria-label="navigation principale">
-      <a href="#galerie">les photos,</a>
-      <a href="#apropos">qui est virgule,</a>
+      <a href="photos.html">les photos,</a>
+      <a href="apropos.html">qui est virgule,</a>
       <a href="#contact">me parler.</a>
     </nav>
   </header>
@@ -40,7 +40,7 @@
 
       <div class="hero-bloc">
         <h1 class="hero-titre" id="titre-hero" data-reveal>virgule<span class="point">.</span></h1>
-        <p class="hero-phrase" data-reveal data-texte="hero-phrase">je photographie les choses<br>avant qu'elles <em>changent d'avis</em>.</p>
+        <p class="hero-phrase" data-reveal data-texte="hero-phrase">marquer une pause<br>dans <em>le temps</em></p>
         <a class="cta" id="cta-photos" href="#galerie" data-reveal>voir les photos&nbsp;<span class="fleche" aria-hidden="true">↓</span></a>
       </div>
 
@@ -57,21 +57,16 @@
     <!-- ============ GALERIE ============ -->
     <section class="galerie" id="galerie" aria-labelledby="titre-galerie">
       <header class="galerie-tete">
-        <h2 class="titre-section" id="titre-galerie" data-reveal>les photos<span class="virg">,</span></h2>
-        <p class="galerie-compte" id="compte" role="status" data-reveal>quinze photos, zéro mensonge.</p>
-        <nav class="filtres" id="filtres" aria-label="filtrer les photos par catégorie" data-reveal>
-          <button type="button" data-cat="tout" aria-pressed="true">tout</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="paysages" aria-pressed="false">paysages</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="macro" aria-pressed="false">macro</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="animaux" aria-pressed="false">animaux</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="portraits" aria-pressed="false">portraits</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="architecture" aria-pressed="false">architecture</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="détails" aria-pressed="false">détails</button><span aria-hidden="true">,&ensp;</span>
-          <button type="button" data-cat="lumière" aria-pressed="false">lumière</button><span aria-hidden="true">.</span>
-        </nav>
+        <h2 class="titre-section" id="titre-galerie" data-reveal>mes clichés favoris<span class="virg">,</span></h2>
+        <p class="galerie-compte" id="compte" data-compte="selection" data-reveal>six préférées, sur quinze en tout.</p>
       </header>
 
       <div class="grille" id="grille"></div>
+
+      <p class="galerie-suite" data-reveal>
+        <a class="cta" href="photos.html">voir toutes les photos&nbsp;<span class="fleche" aria-hidden="true">→</span></a>
+        <span class="galerie-suite-note" data-texte="galerie-suite-note">les autres attendent sagement, rangées par catégorie.</span>
+      </p>
 
       <p class="note-marge note-marge-a" aria-hidden="true" data-texte="note-marge-a">cette rangée m'a demandé trois jours.</p>
       <p class="note-marge note-marge-b" aria-hidden="true" data-texte="note-marge-b">tu peux cliquer, elles ne mordent pas.</p>
@@ -81,42 +76,12 @@
       </noscript>
     </section>
 
-    <!-- ============ À PROPOS ============ -->
-    <section class="apropos" id="apropos" aria-labelledby="titre-apropos">
-      <h2 class="titre-section" id="titre-apropos" data-reveal>qui est virgule<span class="virg">&nbsp;?</span></h2>
-
-      <div class="apropos-grille">
-        <figure class="fiche fiche--photo" data-reveal aria-label="portrait de Virgile, haut-de-forme et fausse moustache, la petite virgule sur l'épaule">
-          <div class="portrait" id="portrait">
-            <img class="portrait-img" id="portrait-img" alt="Virgile, haut-de-forme sur la tête et fausse moustache, la petite virgule posée sur son épaule" hidden>
-            <div class="portrait-placeholder" id="portrait-placeholder">
-              <p class="pp-titre">ta photo ici.</p>
-              <p class="pp-note">chapeau et moustache<br>fournis par la maison.</p>
-            </div>
-            <!-- chapeau, moustache et petit perso sont posés ici par main.js -->
-          </div>
-          <figcaption class="fiche-legende" data-texte="fiche-legende">fig. 1 — l'artiste, vu par lui-même</figcaption>
-          <span class="etiquette e-chapeau" aria-hidden="true" data-texte="etiquette-chapeau">haut-de-forme<br><em>(nécessaire)</em></span>
-          <span class="etiquette e-moustache" aria-hidden="true" data-texte="etiquette-moustache">moustache<br><em>(fausse, évidemment)</em></span>
-          <span class="etiquette e-appareil" aria-hidden="true" data-texte="etiquette-appareil">appareil<br><em>(toujours prêt)</em></span>
-          <span class="etiquette e-queue" aria-hidden="true" data-texte="etiquette-queue">la virgule<br><em>(toujours sur l'épaule)</em></span>
-        </figure>
-
-        <div class="bio" data-reveal>
-          <p class="bio-nom" data-texte="bio-nom">Virgile.</p>
-          <p class="bio-metier" data-texte="bio-metier">photographe.</p>
-          <p class="bio-ligne" data-texte="bio-ligne-1">collectionneur de lumières étranges<br>et de chiens qui regardent ailleurs.</p>
-          <p class="bio-ligne" data-texte="bio-ligne-2">«&nbsp;virgule&nbsp;», parce que Virgile.<br>parce qu'une virgule, c'est une petite pause.</p>
-          <p class="bio-ligne" data-texte="bio-ligne-3">et parce que «&nbsp;Virgile Photographie&nbsp;»,<br>franchement, c'était <em>beaucoup</em> trop sérieux.</p>
-
-          <dl class="stats">
-            <div><dt data-texte="stat1-label">photos prises</dt><dd data-texte="stat1-valeur">beaucoup</dd></div>
-            <div><dt data-texte="stat2-label">photos gardées</dt><dd data-texte="stat2-valeur">les meilleures</dd></div>
-            <div><dt data-texte="stat3-label">moustache</dt><dd data-texte="stat3-valeur">une (1)</dd></div>
-            <div><dt data-texte="stat4-label">clients déçus</dt><dd data-texte="stat4-valeur">zéro (0)</dd></div>
-          </dl>
-        </div>
-      </div>
+    <!-- ============ VERS À PROPOS ============
+         la fiche complète (portrait, bio, étiquettes) vit sur apropos.html -->
+    <section class="renvoi-apropos" aria-labelledby="titre-renvoi">
+      <h2 class="titre-section" id="titre-renvoi" data-reveal>qui est virgule<span class="virg">&nbsp;?</span></h2>
+      <p class="renvoi-texte" data-reveal data-texte="renvoi-apropos">un photographe, un haut-de-forme, une fausse moustache.<br>le reste demande une page entière.</p>
+      <p data-reveal><a class="cta" href="apropos.html">faire connaissance&nbsp;<span class="fleche" aria-hidden="true">→</span></a></p>
     </section>
 
     <!-- ============ CONTACT ============ -->
