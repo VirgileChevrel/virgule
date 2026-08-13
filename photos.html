@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>toutes les photos — virgule | Photographe</title>
   <meta name="description" content="l'ensemble des photos de virgule., à trier par catégorie : paysages, macro, animaux, portraits, architecture, détails et lumière.">
-  <meta name="theme-color" content="#F4EDDD">
+  <meta name="theme-color" content="#F0EEE1">
   <script>document.documentElement.classList.add("js");</script>
   <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,9 +31,9 @@
   <main id="haut">
     <section class="page-photos" aria-labelledby="titre-photos">
       <header class="page-photos-tete">
-        <h1 class="titre-page" id="titre-photos" data-reveal>toutes les photos<span class="virg">,</span></h1>
+        <h1 class="titre-page" id="titre-photos" data-reveal><span data-texte="titre-photos">toutes les photos</span><span class="virg">,</span></h1>
         <p class="galerie-compte" id="compte" role="status" data-reveal>quinze photos, zéro mensonge.</p>
-        <nav class="filtres" id="filtres" aria-label="trier les photos par catégorie" data-reveal></nav>
+        <nav class="filtres" id="filtres" aria-label="trier les photos" data-reveal></nav>
       </header>
 
       <div class="grille-tout" id="grille-tout"></div>
@@ -81,6 +81,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="js/photos-data.js"></script>
+  <script src="js/palmares-data.js"></script>
   <script src="js/site-config.js"></script>
   <script src="js/main.js"></script>
 </body>

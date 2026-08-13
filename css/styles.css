@@ -7,9 +7,13 @@
 
 /* ---------- jetons ---------- */
 :root {
-  --creme: #F4EDDD;
-  --ivoire: #FBF6EA;
-  --papier: #EDE3CC;
+  /* papier non couché, légèrement recyclé : même clarté que le crème d'avant,
+     mais tiré vers le vert et bien moins saturé (H52° S33% au lieu de H42°
+     S51%) — ça l'éloigne du beige orangé qu'on voit partout, et ça s'accorde
+     avec la sauge et le teal qui étaient déjà dans la palette. */
+  --creme: #F0EEE1;
+  --ivoire: #FAF9F0;
+  --papier: #E5E4D3;
   --noir: #1B1610;
   --encre: #4A4234;
   /* le bleu du bandeau du chapeau, repris comme accent (6,8:1 sur le crème) */
@@ -297,11 +301,24 @@ a, button, [role="button"] {
 
 /* filtres de photos.html — de vrais boutons, pour qu'on comprenne
    du premier regard que les catégories se cliquent et trient */
+/* deux axes de tri empilés : le sujet, puis l'événement. Chacun avec son
+   intitulé — sans lui, « paysages » et « Camille & Jonas » côte à côte dans une
+   seule barre ne diraient plus ce qu'on est en train de trier. */
 .filtres {
+  margin-top: 1.8rem;
+}
+.filtres-titre {
+  margin: 1.5rem 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--encre);
+}
+.filtres-titre:first-child { margin-top: 0; }
+.filtres-groupe {
   display: flex;
   flex-wrap: wrap;
   gap: 0.7rem 0.6rem;
-  margin-top: 1.8rem;
 }
 .filtres button {
   font: inherit;
@@ -326,16 +343,24 @@ a, button, [role="button"] {
 /* sur téléphone, huit pastilles à taille pleine mangent quatre lignes :
    on resserre pour tenir en deux ou trois */
 @media (max-width: 719px) {
-  .filtres { gap: 0.5rem 0.45rem; }
+  .filtres-groupe { gap: 0.5rem 0.45rem; }
+  .filtres-titre { margin: 1.2rem 0 0.5rem; }
   .filtres button { font-size: 0.84rem; padding: 0.3rem 0.75rem; }
 }
 
-/* grille éditoriale asymétrique */
+/* la sélection de l'accueil — des colonnes en maçonnerie, comme la grande
+   grille de photos.html, mais plus larges : la sélection doit peser plus lourd
+   que le fonds. Chaque photo garde ses proportions et se pose sous la
+   précédente ; il n'y a plus de rangée à refermer, donc plus de trou à combler.
+   L'intervalle entre colonnes compte dans le calcul du nombre de colonnes :
+   la largeur demandée est donc un peu plus courte que la largeur obtenue. */
 .grille {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
-  align-items: start;
+  column-width: 26rem;
+  column-gap: clamp(1.8rem, 3vw, 3.2rem);
+}
+.grille .photo {
+  break-inside: avoid;
+  margin: 0 0 clamp(2.4rem, 4vw, 3.6rem);
 }
 
 .photo {
@@ -356,52 +381,15 @@ a, button, [role="button"] {
   }
 }
 
-/* tailles */
-/* les tailles ne valent que dans la grille éditoriale de l'accueil :
-   dans la grille dense de photos.html, un « span 7 » sur 4 colonnes
-   déborderait et fabriquerait des colonnes fantômes. */
-.grille .t-grande   { grid-column: span 7; }
-.grille .t-panorama { grid-column: 2 / span 10; }
-.grille .t-haute    { grid-column: span 5; }
-.grille .t-moyenne  { grid-column: span 5; }
-.grille .t-petite   { grid-column: span 4; }
-
-/* décalages verticaux — le léger désordre organisé */
-.photo[data-pos="1"] { margin-top: 6rem; }
-.photo[data-pos="2"] { margin-top: 2.5rem; }
-.photo[data-pos="3"] { margin-top: 5.5rem; }
-.photo[data-pos="4"] { margin-top: 1rem; }
-.photo[data-pos="5"] { margin-top: 4.5rem; }
-
-/* respirations horizontales */
-.photo[data-pos="2"].t-petite  { grid-column: 2 / span 4; }
-.photo[data-pos="4"].t-moyenne { grid-column: 8 / span 5; }
-.photo[data-pos="5"].t-haute   { grid-column: 7 / span 5; }
+/* `taille` ne commande plus de largeur : en maçonnerie, toutes les photos font
+   celle de leur colonne. Elle continue de servir dans js/main.js, pour deviner
+   les proportions quand `ratio` n'est pas renseigné et pour l'attribut `sizes`. */
 
 .photo-cadre {
   position: relative;
   display: block;
   width: 100%;
   padding: 0;
-}
-/* bloc de couleur vintage derrière certaines photos */
-.photo-cadre::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: transparent;
-  transform: rotate(1.6deg) translate(9px, 11px);
-  transition: transform var(--transition-photo);
-}
-.photo[data-pos="1"] .photo-cadre::before { background: var(--sauge); }
-.photo[data-pos="3"] .photo-cadre::before { background: var(--moutarde); }
-.photo[data-pos="5"] .photo-cadre::before { background: var(--bleu); }
-/* les éléments très larges amplifient la rotation : on la tempère */
-.t-panorama .photo-cadre::before { transform: rotate(0.6deg) translate(8px, 10px); }
-@media (hover: hover) {
-  .photo:hover .photo-cadre::before { transform: rotate(2.6deg) translate(12px, 14px); }
-  .photo.t-panorama:hover .photo-cadre::before { transform: rotate(1deg) translate(10px, 12px); }
 }
 
 .photo-fen {
@@ -480,27 +468,6 @@ a, button, [role="button"] {
 .photo.part { opacity: 0; transform: scale(0.96); pointer-events: none; }
 .photo[hidden] { display: none; }
 
-/* notes en marge — la gouttière ne fait que 6rem au maximum, la note en fait
-   9 : elle mord forcément sur la grille. Plutôt que de rétrécir les photos,
-   on l'assume en bout de papier posé sur la photo, comme .photo-phrase :
-   fond ivoire pour rester lisible, z-index pour ne jamais passer dessous. */
-.note-marge {
-  position: absolute;
-  z-index: 3;
-  max-width: 9.5rem;
-  background: var(--ivoire);
-  border: 1.5px solid var(--noir);
-  padding: 0.4rem 0.7rem;
-  font-family: var(--main);
-  font-size: 1.4rem;
-  line-height: 1.2;
-  color: var(--encre);
-}
-/* positions calées sur la sélection de l'accueil (6 photos) : la note de
-   droite longe le panorama, celle de gauche se pose sur la photo du bas
-   sans toucher sa légende */
-.note-marge-a { right: 0.8rem; top: 34%; transform: rotate(3deg); }
-.note-marge-b { left: 0.8rem; top: 60%; transform: rotate(-3.5deg); }
 .sans-js {
   font-family: var(--serif);
   font-style: italic;
@@ -519,17 +486,167 @@ a, button, [role="button"] {
 .page-apropos { padding-top: 8.5rem; }
 .apropos-suite { margin: 2.2rem 0 0; }
 
-/* ---------- accueil : le renvoi vers la page à propos ---------- */
-.renvoi-apropos {
-  padding: 5rem var(--gouttiere) 2rem;
-  text-align: center;
-}
-.renvoi-apropos .titre-section { transform: rotate(-0.8deg); }
-.renvoi-texte {
-  margin: 1.6rem 0 2rem;
+/* ---------- palmarès (accueil) ----------
+   la liste des prestations, montée en index de revue : une ligne par
+   événement, des filets pleine largeur, la date en petites capitales et le nom
+   en italique. Le genre reprend la pastille des filtres de photos.html, pour
+   que les deux listes du site se ressemblent. */
+.palmares { padding: 5rem var(--gouttiere) 6rem; }
+.palmares-tete { margin-bottom: 3rem; }
+.palmares-intro {
+  margin: 1.6rem 0 0;
+  max-width: 42rem;
   font-family: var(--serif);
-  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-size: clamp(1.05rem, 1.7vw, 1.3rem);
   line-height: 1.5;
+}
+/* la largeur de la souche est le repère de tout le billet : la ligne de
+   déchirure et les deux encoches s'y calent. Une seule valeur à bouger. */
+.palmares-liste {
+  --souche: 5.4rem;
+  --marge-billet: 1.2rem;
+  /* le milieu de la perforation, mesuré depuis le bord gauche du billet */
+  --dechirure: calc(var(--marge-billet) + var(--souche) + 0.65rem);
+  counter-reset: billet;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  gap: clamp(1.6rem, 3vw, 2.6rem);
+}
+
+/* un billet d'entrée : souche à gauche, corps à droite, une perforation entre
+   les deux. Chacun penche un peu différemment — quatre inclinaisons qui
+   tournent, pour que la pile n'ait pas l'air imprimée au massicot. */
+.billet {
+  --pivot: -1.1deg;
+  counter-increment: billet;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--souche) 1fr;
+  align-items: center;
+  gap: 0 1.5rem;
+  padding: 1.35rem 1.5rem 1.35rem var(--marge-billet);
+  background: var(--ivoire);
+  border: 1.5px solid var(--noir);
+  transform: rotate(var(--pivot));
+  transition: transform var(--transition-photo);
+}
+.billet:nth-child(4n + 2) { --pivot: 0.9deg; }
+.billet:nth-child(4n + 3) { --pivot: 0.5deg; }
+.billet:nth-child(4n + 4) { --pivot: -0.6deg; }
+@media (hover: hover) {
+  /* le billet se redresse presque et se soulève : juste assez pour qu'il ait
+     l'air posé sur la page plutôt qu'imprimé dedans */
+  .billet:hover { transform: rotate(calc(var(--pivot) * 0.25)) translateY(-4px); }
+}
+
+/* les deux encoches de la perforation — des disques couleur page, à cheval sur
+   le bord haut et le bord bas, exactement dans l'axe des pointillés */
+.billet::before,
+.billet::after {
+  content: "";
+  position: absolute;
+  left: var(--dechirure);
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--creme);
+  border: 1.5px solid var(--noir);
+}
+/* chaque encoche s'ancre à SON bord : en calant les deux depuis le haut, celle
+   du bas retombait 1,5px trop haut — la hauteur de la bordure du billet */
+.billet::before { top: 0; transform: translate(-50%, -50%); }
+.billet::after  { bottom: 0; transform: translate(-50%, 50%); }
+
+.billet-souche {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding-right: 0.65rem;
+  border-right: 2px dashed var(--noir);
+}
+.billet-mois {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+.billet-an {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--encre);
+}
+
+.billet-corps {
+  display: grid;
+  justify-items: start;
+  gap: 0.3rem;
+}
+/* le genre en tampon encreur : capitales espacées, filet bleu, de travers */
+.billet-genre {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bleu);
+  border: 1.5px solid var(--bleu);
+  border-radius: 2px;
+  padding: 0.1rem 0.45rem;
+  transform: rotate(-3deg);
+}
+.billet-quoi {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.2;
+}
+/* le nom est le lien, mais c'est tout le billet qui se clique : le ::after
+   étiré couvre la carte entière sans noyer le nom accessible du lien dans la
+   date et le lieu — un lecteur d'écran annonce « Camille & Jonas », rien de plus */
+.billet-lien {
+  color: inherit;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.2s ease;
+}
+.billet-lien::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.billet-lien:hover,
+.billet-lien:focus-visible { text-decoration-color: currentColor; }
+/* le numéro reste au-dessus de la zone cliquable, sinon il devient invisible
+   au survol dans certains navigateurs qui repeignent la couche du lien */
+.billet-num { z-index: 2; }
+.billet-ou {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--encre);
+}
+
+/* le numéro de billet est compté par le CSS : ajouter une ligne dans le HTML
+   ne demande jamais de renuméroter quoi que ce soit */
+.billet-num {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.45rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--encre);
+  opacity: 0.55;
+}
+.billet-num::before { content: "n°" counter(billet, decimal-leading-zero); }
+.palmares-note {
+  margin: 2rem 0 0;
+  font-family: var(--main);
+  font-size: 1.4rem;
+  color: var(--encre);
+  transform: rotate(-1.2deg);
 }
 
 .apropos-grille {
@@ -1191,22 +1308,6 @@ html.js [data-reveal].vu .virg {
 }
 
 /* ---------- responsive ---------- */
-@media (max-width: 1100px) {
-  /* la gouttière rétrécit : les notes manuscrites empiéteraient sur les photos */
-  .note-marge { display: none; }
-  .grille { grid-template-columns: repeat(8, 1fr); }
-  .grille .t-grande   { grid-column: span 6; }
-  .grille .t-panorama { grid-column: 1 / span 8; }
-  .grille .t-haute    { grid-column: span 4; }
-  .grille .t-moyenne  { grid-column: span 4; }
-  .grille .t-petite   { grid-column: span 3; }
-  .photo[data-pos="2"].t-petite  { grid-column: 2 / span 3; }
-  .photo[data-pos="4"].t-moyenne { grid-column: 5 / span 4; }
-  .photo[data-pos="5"].t-haute   { grid-column: 4 / span 4; }
-  .photo[data-pos="1"] { margin-top: 4rem; }
-  .photo[data-pos="3"] { margin-top: 5.5rem; }
-}
-
 @media (max-width: 860px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1233,29 +1334,20 @@ html.js [data-reveal].vu .virg {
   .entete-nav { gap: 0.7rem; }
   .entete-nav a { font-size: 0.95rem; }
 
-  .grille {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 2.2rem 0.9rem;
-  }
-  /* tous les formats larges prennent toute la largeur : sur un téléphone,
-     un paysage coincé dans 5 colonnes sur 6 devient minuscule et c'est la
-     colonne qu'on regarde, plus la photo. les hautes et les carrées gardent
-     un léger retrait — à pleine largeur, elles mangeraient tout l'écran. */
-  .grille .t-grande, .grille .t-panorama, .grille .t-moyenne { grid-column: 1 / -1; }
-  .grille .t-haute   { grid-column: 1 / span 5; }
-  .grille .t-petite  { grid-column: 1 / span 5; }
-  .photo[data-pos="1"] { margin-top: 1.6rem; }
-  .photo[data-pos="2"] { margin-top: 0.8rem; }
-  .photo[data-pos="2"].t-petite { grid-column: 2 / span 5; }
-  .photo[data-pos="3"] { margin-top: 2rem; }
-  .photo[data-pos="4"] { margin-top: 0.6rem; }
-  /* neutralise le décalage hérité du palier 1100px : sur 6 colonnes, un
-     « 5 / span 4 » en créerait deux de plus et rétrécirait toute la grille */
-  .photo[data-pos="4"].t-moyenne { grid-column: 1 / -1; }
-  .photo[data-pos="5"] { margin-top: 1.4rem; }
-  .photo[data-pos="5"].t-haute { grid-column: 2 / span 5; }
+  /* une seule colonne : sur un téléphone, une photo à demi-largeur, c'est la
+     colonne qu'on regarde, plus la photo */
+  .grille { columns: 1; }
+  .grille .photo { margin-bottom: 2.4rem; }
 
-  .note-marge { display: none; }
+  /* les billets se resserrent : sur 375px, une souche à 5,4rem laisserait deux
+     mots par ligne au nom de l'événement */
+  .palmares-liste {
+    --souche: 4.2rem;
+    --marge-billet: 0.9rem;
+    grid-template-columns: 1fr;
+  }
+  .billet { gap: 0 1.1rem; padding-right: 1.1rem; }
+  .billet-mois { font-size: 1.25rem; }
 
   .stats { grid-template-columns: 1fr; }
 

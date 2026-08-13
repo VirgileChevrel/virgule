@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>panneau secret — virgule.</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#F4EDDD">
+  <meta name="theme-color" content="#F0EEE1">
   <link rel="icon" href="../logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Archivo:wght@400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --creme: #F4EDDD; --ivoire: #FBF6EA; --papier: #EDE3CC;
+      --creme: #F0EEE1; --ivoire: #FAF9F0; --papier: #E5E4D3;
       --noir: #1B1610; --encre: #4A4234;
       --bleu: #385086; --bleu-texte: #2F4676;
       --sauge: #8A9B84; --teal: #39584C; --moutarde: #D9A62E;
@@ -185,6 +185,10 @@
         <label for="l-mdp">mot de passe</label>
         <input type="password" id="l-mdp" autocomplete="current-password" required>
       </div>
+      <label class="champ" style="display:flex;align-items:center;gap:.5rem;flex-direction:row">
+        <input type="checkbox" id="aller-site" checked style="width:auto">
+        <span style="font-size:.85rem">aller directement sur le site pour modifier au crayon</span>
+      </label>
       <button class="btn" type="submit">entrer</button>
       <p class="porte-erreur" id="porte-erreur" role="alert"></p>
     </form>
@@ -335,6 +339,11 @@
       if (id === ACCES.id && h === ACCES.empreinte) {
         try { sessionStorage.setItem(CLE_SESSION, ACCES.empreinte); } catch (e2) { /* tant pis */ }
         ouvrePanneau();
+        /* la connexion mène au site en mode édition — c'est là qu'on modifie.
+           Le panneau reste ouvert derrière : c'est ici qu'on revient publier.
+           Même onglet obligatoire : sessionStorage ne suit pas d'un onglet à
+           l'autre, et le drapeau d'édition serait perdu. */
+        if (document.getElementById("aller-site").checked) location.href = "../index.html";
       } else {
         essais += 1;
         porteErreur.textContent = MOTS_DOUX[Math.min(essais, MOTS_DOUX.length) - 1];
@@ -376,15 +385,25 @@
 
     const CLE_STOCKAGE = "virgule-config";
     const TAILLES = ["grande", "panorama", "haute", "moyenne", "petite"];
+    /* les billets du palmarès, saisis au crayon sur le site : ce panneau ne
+       les affiche pas, il se contente de ne pas les perdre (voir chargeEtat) */
+    let palmaresGarde = null;
 
     const LIBELLES_TEXTES = [
+      ["titre-hero", "le grand titre de l'accueil"],
+      ["hero-sur", "la ligne au-dessus du grand titre"],
+      ["hero-sur-note", "la nuance entre parenthèses, à côté"],
       ["hero-phrase", "phrase d'accueil (sous le grand titre)"],
+      ["titre-galerie", "titre de la sélection (accueil)"],
+      ["titre-palmares", "titre du palmarès (accueil)"],
+      ["titre-contact", "titre du bloc contact (accueil)"],
+      ["titre-photos", "titre de la page « toutes les photos »"],
+      ["titre-apropos", "titre de la page « qui est virgule »"],
       ["annot-moi", "annotation « lui, c'est moi »"],
       ["annot-app", "annotation sous le personnage"],
-      ["note-marge-a", "note en marge (droite de la sélection)"],
-      ["note-marge-b", "note en marge (gauche de la sélection)"],
       ["galerie-suite-note", "note à côté du bouton « toutes les photos » (accueil)"],
-      ["renvoi-apropos", "texte du renvoi « qui est virgule » (accueil)"],
+      ["palmares-intro", "chapô du palmarès (accueil)"],
+      ["palmares-note", "note manuscrite sous le palmarès (accueil)"],
       ["fiche-legende", "légende sous le portrait"],
       ["etiquette-chapeau", "étiquette chapeau"],
       ["etiquette-moustache", "étiquette moustache"],
@@ -482,6 +501,7 @@
         }
         if (Object.keys(contactDiff).length) payload.contact = contactDiff;
         if (JSON.stringify(etat.portrait) !== JSON.stringify(PORTRAIT_DEFAUT)) payload.portrait = etat.portrait;
+        if (palmaresGarde) payload.palmares = palmaresGarde;
 
         try {
           if (Object.keys(payload).length) {
@@ -502,9 +522,23 @@
     function noteStockage(taille) {
       const el = $("#note-stockage");
       const mo = taille / 1024 / 1024;
-      el.textContent = mo > 3
-        ? `attention : tes réglages pèsent ${mo.toFixed(1)} Mo (limite du navigateur ≈ 5 Mo). remplace les photos « fichier » par des chemins vers le dossier photos/.`
-        : "";
+      const messages = [];
+      if (mo > 3) {
+        messages.push(`attention : tes réglages pèsent ${mo.toFixed(1)} Mo (limite du navigateur ≈ 5 Mo). remplace les photos « fichier » par des chemins vers le dossier photos/.`);
+      }
+      /* une liste de photos enregistrée ici masque complètement js/photos-data.js,
+         sans que rien ne le dise sur le site : on a vu quelqu'un chercher un bon
+         moment pourquoi ses nouvelles photos n'apparaissaient pas. */
+      let gardees = null;
+      try {
+        const brut = localStorage.getItem(CLE_STOCKAGE);
+        const c = brut ? JSON.parse(brut) : null;
+        if (c && Array.isArray(c.photos) && c.photos.length) gardees = c.photos.length;
+      } catch (e) { /* rien */ }
+      if (gardees !== null && gardees !== PHOTOS.length) {
+        messages.push(`ce navigateur affiche ${gardees} photo${gardees > 1 ? "s" : ""} enregistrée${gardees > 1 ? "s" : ""} ici, pas les ${PHOTOS.length} de js/photos-data.js — c'est cette version-là qui gagne, sur cet appareil. Le bouton rouge en bas rend la main au fichier.`);
+      }
+      el.textContent = messages.join(" ");
     }
 
     /* ---------- onglets ---------- */
@@ -815,6 +849,7 @@
       }
       if (Object.keys(contactDiff).length) payload.contact = contactDiff;
       if (JSON.stringify(etat.portrait) !== JSON.stringify(PORTRAIT_DEFAUT)) payload.portrait = etat.portrait;
+      if (palmaresGarde) payload.palmares = palmaresGarde;
       telecharge("site-config.js",
         `/* virgule. — réglages du site (généré par /admin le ${new Date().toLocaleDateString("fr-FR")}) */\n\nwindow.VIRGULE_CONFIG = ${Object.keys(payload).length ? JSON.stringify(payload, null, 2) : "null"};\n`);
       ditStatut("téléchargé ✓");
@@ -857,6 +892,11 @@
         if (brut) conf = JSON.parse(brut);
       } catch (e) { /* on ignore */ }
       if (!conf) return;
+      /* le palmarès ne se modifie pas ici mais au crayon, sur le site. Ce
+         panneau réécrit pourtant la config entière à chaque enregistrement :
+         sans cette reprise, un simple « enregistrer » ici effacerait tous les
+         billets saisis là-bas. */
+      if (Array.isArray(conf.palmares)) palmaresGarde = conf.palmares;
       if (Array.isArray(conf.photos) && conf.photos.length) etat.photos = clone(conf.photos);
       if (conf.textes) Object.assign(etat.textes, conf.textes);
       if (conf.contact) Object.assign(etat.contact, conf.contact);

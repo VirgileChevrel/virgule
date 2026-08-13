@@ -10,6 +10,21 @@
   const mouvReduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ------------------------------------------------------------------
+     porte de sortie — ?fichiers
+     --------------------------------------------------------------------
+     Une liste enregistrée autrefois depuis /admin masque complètement
+     js/photos-data.js, sur cet appareil seulement, et rien ne le signale en
+     naviguant : on cherche longtemps pourquoi de nouvelles photos n'arrivent
+     pas. Ouvrir n'importe quelle page avec ?fichiers rend la main aux fichiers
+     du site. Ça n'efface que ce navigateur-ci, jamais le site.
+  ------------------------------------------------------------------ */
+  if (/[?&]fichiers(&|=|$)/.test(location.search)) {
+    try { localStorage.removeItem("virgule-config"); } catch (e) { /* rien */ }
+    location.replace(location.pathname + location.hash);
+    return;
+  }
+
+  /* ------------------------------------------------------------------
      config éditable — le panneau /admin écrit dans localStorage,
      js/site-config.js sert pour la version publiée
   ------------------------------------------------------------------ */
@@ -22,6 +37,11 @@
   const LISTE = (CONFIG && Array.isArray(CONFIG.photos) && CONFIG.photos.length)
     ? CONFIG.photos
     : PHOTOS;
+
+  /* palmares-data.js n'est pas chargé sur toutes les pages : on ne veut pas
+     qu'une page sans palmarès tombe sur un PALMARES inexistant */
+  const PALMARES_BASE = (typeof PALMARES !== "undefined" && Array.isArray(PALMARES)) ? PALMARES : [];
+  let BILLETS = (CONFIG && Array.isArray(CONFIG.palmares)) ? CONFIG.palmares : PALMARES_BASE;
 
   const escHtml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   /* un texte du panneau : les sauts de ligne deviennent <br>,
@@ -306,6 +326,13 @@
 
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 
+  /* le nom d'un événement voyage dans l'URL : « Camille & Jonas » devient
+     « camille-jonas ». C'est la même règle des deux côtés — les billets du
+     palmarès, sur l'accueil, pointent vers photos.html?evenement=<cette forme>. */
+  const slug = (s) => String(s)
+    .normalize("NFD").replace(/\p{Diacritic}/gu, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
   function urlPhoto(p, largeur) {
     const [w, h] = ratioPhoto(p);
     const hauteur = Math.round((largeur * h) / w);
@@ -341,6 +368,9 @@
     const fig = document.createElement("figure");
     fig.className = `photo t-${p.taille}`;
     fig.dataset.cat = p.categorie || "sans catégorie";
+    /* l'événement d'où vient la photo, sous sa forme d'URL : c'est cette clé
+       que les billets du palmarès demandent en arrivant sur la page */
+    if (p.evenement) fig.dataset.evt = slug(p.evenement);
     fig.dataset.index = i;
     fig.style.setProperty("--tilt", `${tilt.toFixed(2)}deg`);
     fig.setAttribute("data-reveal", "");
@@ -384,13 +414,20 @@
   }
 
   /* ---------- photos.html : tout le fonds, une grille + les filtres ---------- */
+  /* le filtre demandé dans l'URL ne peut être appliqué qu'une fois `compte` et
+     `enLettres` déclarés, plus bas : on garde le geste sous le coude ici et on
+     le déclenche à ce moment-là */
+  let filtreDArrivee = null;
   const grilleTout = $("#grille-tout");
   if (grilleTout) {
     LISTE.forEach((p, i) => ajoute(p, i, grilleTout));
 
-    /* la barre de filtres se construit depuis les catégories réellement
-       présentes : une catégorie inventée dans photos-data.js a son bouton,
-       une catégorie vidée n'encombre plus la barre */
+    /* la barre de filtres se construit depuis ce qui est réellement présent
+       dans les données : une catégorie inventée dans photos-data.js a son
+       bouton, une catégorie vidée n'encombre plus la barre. Même chose pour
+       les événements, qui forment un second groupe — deux axes de tri
+       différents (le sujet, la prestation), donc deux rangées séparées plutôt
+       qu'une seule barre où l'on ne saurait plus ce qu'on trie. */
     const filtres = $("#filtres");
     if (filtres) {
       const ORDRE_CATS = ["paysages", "macro", "animaux", "portraits", "architecture", "détails", "lumière"];
@@ -399,20 +436,43 @@
         ...ORDRE_CATS.filter((c) => presentes.includes(c)),
         ...presentes.filter((c) => !ORDRE_CATS.includes(c)).sort((a, b) => a.localeCompare(b, "fr")),
       ];
-      filtres.innerHTML = ["tout", ...cats].map((c) =>
-        `<button type="button" data-cat="${esc(c)}" aria-pressed="${String(c === "tout")}">${esc(c)}</button>`).join("");
+      /* les événements gardent l'ordre de photos-data.js : à toi de mettre le
+         plus récent en premier, comme dans le palmarès de l'accueil */
+      const evenements = [...new Set(LISTE.map((p) => p.evenement).filter(Boolean))];
+
+      const bouton = (cle, val, texte, actif) =>
+        `<button type="button" data-${cle}="${esc(val)}" aria-pressed="${String(actif)}">${esc(texte)}</button>`;
+
+      let html = `<p class="filtres-titre" id="filtres-sujet">par sujet</p>`
+        + `<div class="filtres-groupe" role="group" aria-labelledby="filtres-sujet">`
+        + ["tout", ...cats].map((c) => bouton("cat", c, c, c === "tout")).join("")
+        + `</div>`;
+      if (evenements.length) {
+        html += `<p class="filtres-titre" id="filtres-evt">par événement</p>`
+          + `<div class="filtres-groupe" role="group" aria-labelledby="filtres-evt">`
+          + evenements.map((e) => bouton("evt", slug(e), e, false)).join("")
+          + `</div>`;
+      }
+      filtres.innerHTML = html;
 
       let filtreEnCours = null;
-      filtres.addEventListener("click", (e) => {
-        const btn = e.target.closest("button[data-cat]");
-        if (!btn) return;
+      /* un seul filtre actif à la fois, tous groupes confondus : filtrer sur
+         « paysages » ET sur un mariage donnerait presque toujours zéro photo */
+      function applique(btn) {
         const cat = btn.dataset.cat;
+        const evt = btn.dataset.evt;
+        const garde = (f) => (evt ? f.dataset.evt === evt : cat === "tout" || f.dataset.cat === cat);
         $$("button", filtres).forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
 
         clearTimeout(filtreEnCours);
+        /* la liste à masquer est arrêtée maintenant, d'après le filtre lui-même.
+           En relisant la classe .part au bout des 320ms, on dépendait de
+           requestAnimationFrame pour l'avoir retirée à temps — or rAF est gelé
+           dans un onglet en arrière-plan, et des photos à garder finissaient
+           masquées au retour. */
+        const aMasquer = figures.filter((f) => !garde(f));
         figures.forEach((f) => {
-          const visible = cat === "tout" || f.dataset.cat === cat;
-          if (visible) {
+          if (garde(f)) {
             f.hidden = false;
             requestAnimationFrame(() => f.classList.remove("part"));
           } else {
@@ -420,30 +480,80 @@
           }
         });
         filtreEnCours = setTimeout(() => {
-          figures.forEach((f) => { if (f.classList.contains("part")) f.hidden = true; });
+          aMasquer.forEach((f) => { f.hidden = true; });
         }, 320);
 
-        const n = figures.filter((f) => cat === "tout" || f.dataset.cat === cat).length;
-        const de = /^[aeiouâàéèêîôû]/i.test(cat) ? "d'" : "de ";
-        if (compte) {
-          compte.textContent = cat === "tout"
-            ? `${enLettres(n)} photos, zéro mensonge.`
-            : `${enLettres(n)} photo${n > 1 ? "s" : ""} ${de}${cat}, toujours zéro mensonge.`;
-        }
+        /* l'URL suit le filtre événement : la page reste partageable, et un
+           retour arrière depuis une photo ne perd pas la sélection */
+        const url = new URL(location.href);
+        if (evt) url.searchParams.set("evenement", evt);
+        else url.searchParams.delete("evenement");
+        history.replaceState(null, "", url);
+
+        annonce(figures.filter(garde).length, cat, evt && btn.textContent);
+      }
+
+      filtres.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-cat], button[data-evt]");
+        if (btn) applique(btn);
       });
+
+      /* arrivée depuis un billet du palmarès : ?evenement=camille-jonas */
+      filtreDArrivee = () => {
+        const demande = new URLSearchParams(location.search).get("evenement");
+        if (!demande) return;
+        const btn = $(`button[data-evt="${CSS.escape(demande)}"]`, filtres);
+        if (btn) applique(btn);
+        /* événement annoncé au palmarès mais dont aucune photo n'est encore
+           publiée : on le dit, plutôt que d'afficher une page vide */
+        else if (compte) compte.textContent = "aucune photo pour cet événement — pour l'instant, les voici toutes.";
+      };
     }
   }
 
-  function positionne() {
-    let pos = 0;
-    figures.forEach((f) => {
-      if (f.hidden) { f.removeAttribute("data-pos"); return; }
-      f.dataset.pos = pos % 6;
-      pos += 1;
-    });
+  /* ------------------------------------------------------------------
+     le palmarès — un billet d'entrée par prestation couverte
+  ------------------------------------------------------------------ */
+  const MOIS = ["janv.", "févr.", "mars", "avril", "mai", "juin",
+    "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  const palmaresListe = $("#palmares-liste");
+  let revelationPrete = false;
+
+  /* « 2026-06 » → { mois: "juin", an: "2026" }. Une date incomplète ou farfelue
+     ne casse pas le billet : elle s'affiche telle quelle dans la souche. */
+  function litDate(d) {
+    const m = /^(\d{4})-(\d{2})$/.exec(String(d || "").trim());
+    if (!m) return { mois: String(d || ""), an: "", brut: "" };
+    return { mois: MOIS[Number(m[2]) - 1] || m[2], an: m[1], brut: `${m[1]}-${m[2]}` };
   }
-  /* les décalages éditoriaux n'ont de sens que dans la grille de l'accueil */
-  if (grille) positionne();
+
+  function rendPalmares() {
+    if (!palmaresListe) return;
+    palmaresListe.innerHTML = BILLETS.map((b, i) => {
+      const { mois, an, brut } = litDate(b.date);
+      /* le lien se déduit du nom : il tombe donc forcément sur la même clé que
+         le champ `evenement` des photos, sans slug à recopier à la main */
+      const cible = `photos.html?evenement=${encodeURIComponent(slug(b.quoi || ""))}`;
+      return `<li class="billet" data-reveal data-billet="${i}">
+        <time class="billet-souche"${brut ? ` datetime="${brut}"` : ""}>
+          <span class="billet-mois">${esc(mois)}</span>
+          <span class="billet-an">${esc(an)}</span>
+        </time>
+        <span class="billet-corps">
+          ${b.genre ? `<span class="billet-genre">${esc(b.genre)}</span>` : ""}
+          <a class="billet-quoi billet-lien" href="${esc(cible)}">${esc(b.quoi || "sans titre")}</a>
+          ${b.ou ? `<span class="billet-ou">${esc(b.ou)}</span>` : ""}
+        </span>
+        <span class="billet-num" aria-hidden="true"></span>
+      </li>`;
+    }).join("");
+    /* au premier rendu, l'observateur d'apparitions n'existe pas encore : il
+       balaiera la page juste après et trouvera les billets. Aux rendus
+       suivants (mode édition), il est déjà passé — les billets neufs seraient
+       donc restés invisibles, on les montre directement. */
+    if (revelationPrete) $$("[data-reveal]", palmaresListe).forEach((el) => el.classList.add("vu"));
+  }
+  rendPalmares();
 
   /* ------------------------------------------------------------------
      le compte annoncé — il suit le nombre réel de photos (modifiable /admin).
@@ -452,14 +562,45 @@
   ------------------------------------------------------------------ */
   const EN_LETTRES = ["zéro", "une", "deux", "trois", "quatre", "cinq", "six", "sept",
     "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze",
-    "seize", "dix-sept", "dix-huit", "dix-neuf", "vingt"];
-  const enLettres = (n) => EN_LETTRES[n] || n;
+    "seize", "dix-sept", "dix-huit", "dix-neuf"];
+  const DIZAINES = { 20: "vingt", 30: "trente", 40: "quarante", 50: "cinquante", 60: "soixante" };
+  /* le fonds finira par dépasser vingt photos : « six préférées, sur 22 en tout »
+     mélangeait les lettres et les chiffres dans la même phrase. Au-delà de
+     soixante-neuf, le français se complique pour rien — on repasse au chiffre. */
+  function enLettres(n) {
+    if (EN_LETTRES[n]) return EN_LETTRES[n];
+    const d = Math.floor(n / 10) * 10;
+    const u = n % 10;
+    if (!DIZAINES[d]) return n;
+    if (u === 0) return DIZAINES[d];
+    if (u === 1) return `${DIZAINES[d]} et une`;
+    return `${DIZAINES[d]}-${EN_LETTRES[u]}`;
+  }
   const compte = $("#compte");
   if (compte) {
     compte.textContent = compte.dataset.compte === "selection"
       ? `${enLettres(figures.length)} préférées, sur ${enLettres(LISTE.length)} en tout.`
       : `${enLettres(LISTE.length)} photos, zéro mensonge.`;
   }
+
+  /* la phrase qui répond aux filtres. Déclarée en `function` pour être hissée :
+     applique() l'appelle depuis le bloc des filtres, écrit plus haut. */
+  function annonce(n, cat, nomEvt) {
+    if (!compte) return;
+    if (nomEvt) {
+      compte.textContent = `${enLettres(n)} photo${n > 1 ? "s" : ""} de « ${nomEvt} ».`;
+      return;
+    }
+    if (cat === "tout") {
+      compte.textContent = `${enLettres(n)} photos, zéro mensonge.`;
+      return;
+    }
+    const de = /^[aeiouâàéèêîôû]/i.test(cat) ? "d'" : "de ";
+    compte.textContent = `${enLettres(n)} photo${n > 1 ? "s" : ""} ${de}${cat}, toujours zéro mensonge.`;
+  }
+
+  /* maintenant que le compte sait parler, on peut honorer le ?evenement= de l'URL */
+  if (filtreDArrivee) filtreDArrivee();
 
   /* ------------------------------------------------------------------
      le voile (lightbox)
@@ -607,6 +748,7 @@
   } else {
     $$("[data-reveal]").forEach((el) => el.classList.add("vu"));
   }
+  revelationPrete = true;
 
   /* ------------------------------------------------------------------
      machine à écrire — le texte s'écrit tout seul, une virgule bleue
@@ -844,5 +986,38 @@
     };
     evenements.forEach((ev) => addEventListener(ev, repartir, { passive: true }));
     repartir();
+  }
+
+  /* ------------------------------------------------------------------
+     le mode édition — les crayons sur le site lui-même
+     --------------------------------------------------------------------
+     /admin pose un drapeau de session en s'ouvrant ; on ne charge js/edition.js
+     que s'il est là. Un visiteur ordinaire ne télécharge donc rien de tout ça.
+
+     Ce drapeau n'est PAS une sécurité : n'importe qui peut le poser à la main,
+     l'empreinte du mot de passe étant dans le source de /admin. Ce n'est pas
+     grave tant que l'édition ne fait qu'écrire dans le localStorage de celui
+     qui édite — la publication, elle, passe par les fichiers à retélécharger
+     depuis /admin. Ne jamais rien enregistrer côté serveur ici.
+  ------------------------------------------------------------------ */
+  let editionOuverte = false;
+  try { editionOuverte = !!sessionStorage.getItem("virgule-admin-ouvert"); } catch (e) { /* rien */ }
+  if (editionOuverte) {
+    /* la passerelle que js/edition.js utilise pour relire et réappliquer,
+       sans redéclarer ce que main.js sait déjà faire */
+    window.VIRGULE_EDITION = {
+      config: () => CONFIG,
+      poseConfig: (c) => { CONFIG = c; },
+      texteVersHtml,
+      slug,
+      litDate,
+      poseBillets: (liste) => { BILLETS = liste; rendPalmares(); },
+      billets: () => BILLETS,
+      photos: () => LISTE,
+      toast: ecrireToast,
+    };
+    const s = document.createElement("script");
+    s.src = "js/edition.js";
+    document.body.appendChild(s);
   }
 })();

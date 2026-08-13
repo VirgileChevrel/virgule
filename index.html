@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>virgule | Photographe</title>
   <meta name="description" content="virgule. — le portfolio de Virgile, photographe. paysages, portraits, champignons suspects et lumières étranges, capturés juste avant qu'ils changent d'avis.">
-  <meta name="theme-color" content="#F4EDDD">
+  <meta name="theme-color" content="#F0EEE1">
   <script>document.documentElement.classList.add("js");</script>
   <link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,10 +36,12 @@
       <div class="ponctuation" aria-hidden="true">
         <span>,</span><span>.</span><span>;</span><span>,</span><span>?</span><span>,</span><span>…</span><span>!</span>
       </div>
-      <p class="hero-sur" data-reveal>n°1 — portfolio d'un photographe sérieux <span class="hero-sur-note">(l'identité visuelle, un peu moins)</span></p>
+      <!-- data-texte tient les mots seuls : la ponctuation animée (.virg, .point)
+           reste à côté, sinon l'éditeur la remplacerait en réécrivant le titre -->
+      <p class="hero-sur" data-reveal><span data-texte="hero-sur">n°1 — portfolio d'un photographe sérieux</span> <span class="hero-sur-note" data-texte="hero-sur-note">(l'identité visuelle, un peu moins)</span></p>
 
       <div class="hero-bloc">
-        <h1 class="hero-titre" id="titre-hero" data-reveal>virgule<span class="point">.</span></h1>
+        <h1 class="hero-titre" id="titre-hero" data-reveal><span data-texte="titre-hero">virgule</span><span class="point">.</span></h1>
         <p class="hero-phrase" data-reveal data-texte="hero-phrase">marquer une pause<br>dans <em>le temps</em></p>
         <a class="cta" id="cta-photos" href="#galerie" data-reveal>voir les photos&nbsp;<span class="fleche" aria-hidden="true">↓</span></a>
       </div>
@@ -57,7 +59,7 @@
     <!-- ============ GALERIE ============ -->
     <section class="galerie" id="galerie" aria-labelledby="titre-galerie">
       <header class="galerie-tete">
-        <h2 class="titre-section" id="titre-galerie" data-reveal>mes clichés favoris<span class="virg">,</span></h2>
+        <h2 class="titre-section" id="titre-galerie" data-reveal><span data-texte="titre-galerie">mes clichés favoris</span><span class="virg">,</span></h2>
         <p class="galerie-compte" id="compte" data-compte="selection" data-reveal>six préférées, sur quinze en tout.</p>
       </header>
 
@@ -68,25 +70,36 @@
         <span class="galerie-suite-note" data-texte="galerie-suite-note">les autres attendent sagement, rangées par catégorie.</span>
       </p>
 
-      <p class="note-marge note-marge-a" aria-hidden="true" data-texte="note-marge-a">cette rangée m'a demandé trois jours.</p>
-      <p class="note-marge note-marge-b" aria-hidden="true" data-texte="note-marge-b">tu peux cliquer, elles ne mordent pas.</p>
-
       <noscript>
         <p class="sans-js">les photos ont besoin de javascript pour s'afficher.<br>elles sont timides, mais elles existent.</p>
       </noscript>
     </section>
 
-    <!-- ============ VERS À PROPOS ============
-         la fiche complète (portrait, bio, étiquettes) vit sur apropos.html -->
-    <section class="renvoi-apropos" aria-labelledby="titre-renvoi">
-      <h2 class="titre-section" id="titre-renvoi" data-reveal>qui est virgule<span class="virg">&nbsp;?</span></h2>
-      <p class="renvoi-texte" data-reveal data-texte="renvoi-apropos">un photographe, un haut-de-forme, une fausse moustache.<br>le reste demande une page entière.</p>
-      <p data-reveal><a class="cta" href="apropos.html">faire connaissance&nbsp;<span class="fleche" aria-hidden="true">→</span></a></p>
+    <!-- ============ PALMARÈS ============
+         les prestations déjà couvertes. Les billets sont montés par main.js
+         depuis js/palmares-data.js — c'est ce qui les rend modifiables au
+         crayon depuis le mode édition. Chaque événement est un billet
+         d'entrée : souche détachable avec la date, tampon du genre, nom, lieu.
+         Le numéro en bas à droite est compté par le CSS.
+         Le nom renvoie vers la galerie déjà filtrée sur cet événement. -->
+    <section class="palmares" id="palmares" aria-labelledby="titre-palmares">
+      <header class="palmares-tete">
+        <h2 class="titre-section" id="titre-palmares" data-reveal><span data-texte="titre-palmares">ce que j'ai couvert</span><span class="virg">,</span></h2>
+        <p class="palmares-intro" data-reveal data-texte="palmares-intro">mariages, événements gaming, et quelques soirées qui ont dérapé — pour les photos, c'était parfait.</p>
+      </header>
+
+      <ol class="palmares-liste" id="palmares-liste"></ol>
+
+      <noscript>
+        <p class="sans-js">le palmarès a besoin de javascript pour s'afficher.</p>
+      </noscript>
+
+      <p class="palmares-note" data-reveal data-texte="palmares-note">et la prochaine ligne, c'est peut-être toi.</p>
     </section>
 
     <!-- ============ CONTACT ============ -->
     <section class="contact" id="contact" aria-labelledby="titre-contact">
-      <h2 class="titre-section" id="titre-contact" data-reveal>tu veux me parler<span class="virg">&nbsp;?</span></h2>
+      <h2 class="titre-section" id="titre-contact" data-reveal><span data-texte="titre-contact">tu veux me parler</span><span class="virg">&nbsp;?</span></h2>
       <span class="annot annot-toi" aria-hidden="true" data-texte="annot-toi">→ oui, toi.</span>
       <p class="contact-liens" data-reveal>
         <a class="contact-lien" id="lien-email" href="mailto:bonjour@virgule-photo.fr">bonjour@virgule-photo.fr</a><span class="virg" aria-hidden="true">,</span>
@@ -134,6 +147,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="js/photos-data.js"></script>
+  <script src="js/palmares-data.js"></script>
   <script src="js/site-config.js"></script>
   <script src="js/main.js"></script>
 </body>
